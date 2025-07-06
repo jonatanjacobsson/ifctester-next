@@ -127,7 +127,7 @@ html, body {
 
         .buttons {
             border-right: 1px solid #ffffff1c;
-            padding: 15px 15px;
+            padding: 10px 10px;
             display: flex;
             align-items: center;
             flex-direction: column;
@@ -139,8 +139,8 @@ html, body {
                 cursor: pointer;
 
                 svg {
-                    width: 30px;
-                    height: 30px;
+                    width: 25px;
+                    height: 25px;
                     transition-duration: 100ms;
                     color: #ffffff69;
                 }
@@ -156,12 +156,43 @@ html, body {
             width: 16vw;
             padding: 15px 15px;
             overflow-y: auto;
+
+            .content-header {
+                display: flex;
+                align-items: center;
+
+                h1 {
+                    text-transform: uppercase;
+                    font-size: 0.9rem;
+                    color: #ffffffa6;
+                }
+
+                button {
+                    margin-left: auto;
+                    height: 25px;
+                    width: 25px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition-duration: 100ms;
+
+                    svg {
+                        color: #ffffffa6;
+                        width: 1.3rem;
+                    }
+                }
+                button:hover {
+                    background-color: #ffffff2b;
+                }
+            }
         }
     }
 }
 
 .app-header {
-    height: 60px;
+    height: 45px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #ffffff1c;
@@ -170,8 +201,8 @@ html, body {
 
     .logo {
         background: url(/logo.svg);
-        height: 35px;
-        width: 35px;
+        height: 25px;
+        width: 25px;
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
