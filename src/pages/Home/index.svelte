@@ -97,6 +97,13 @@ XML: ${xmlString}`;
             loading = false;
         }
     }
+
+    async function testCloseWasm() {
+        if (!initialized) await initWasm();
+        await wasm.dispose();
+        initialized = false;
+        output = 'WASM module disposed';
+    }
 </script>
 
 <div class="app">
@@ -148,7 +155,7 @@ XML: ${xmlString}`;
                 <Tooltip.Provider>
                     <Tooltip.Root disableHoverableContent="true">
                         <Tooltip.Trigger>
-                            <button class="btn" aria-label="Home">
+                            <button class="tb-btn active" aria-label="Home">
                                 <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"/>
                                 </svg>
@@ -160,7 +167,7 @@ XML: ${xmlString}`;
                     </Tooltip.Root>
                     <Tooltip.Root disableHoverableContent="true">
                         <Tooltip.Trigger>
-                            <button class="btn" aria-label="Bonsai Integration">
+                            <button class="tb-btn" aria-label="Bonsai Integration">
                                 <svg style="height: 20px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32mm" height="32mm" version="1.1" viewBox="0 0 32 32" xml:space="preserve">
                                     <defs><linearGradient id="a" x1="319.66" x2="414.22" y1="725.95" y2="631.1" gradientTransform="matrix(.34384 0 0 .34384 1065.6 -23.668)" gradientUnits="userSpaceOnUse"><stop stop-color="currentColor" offset="0" /><stop stop-color="currentColor" offset="1" /></linearGradient></defs>
                                     <g transform="translate(-1274.3 -68)"><g transform="matrix(.89066 0 0 .89066 230.47 -102.44)" clip-rule="evenodd"><path d="m1177.3 192.49c-1.0334-2e-5 -1.8713 0.83759-1.8715 1.871v29.941c0 1.0336 0.8379 1.8716 1.8715 1.8715h19.461c0.4963-1.1e-4 0.9723-0.19737 1.3231-0.54839l7.8162-7.8161c0.7306-0.73081 0.7306-1.9154 0-2.6462l-5.0282-5.0282-2.3818 2.3818 3.9696 3.9696-6.3191 6.3191h-17.344v-26.946l17.321-0.0212 6.3429 6.3581-12.703 12.703-5.5574-5.5574 5.5574-5.5574 4.7635 4.7635 2.3818-2.3818-5.8217-5.8221c-0.7286-0.72842-1.9168-0.72974-2.6467 0l-7.6763 7.6763c-0.706 0.70636-0.733 1.8426-0.061 2.5817l7.7091 7.7091c0.7309 0.80387 1.9905 0.81846 2.7398 0.0317l14.796-14.864c0.7006-0.73553 0.6866-1.8956-0.032-2.614l-7.8253-7.8253c-0.351-0.35081-0.8269-0.54787-1.3231-0.54785z" fill="currentColor" fill-rule="evenodd"/><rect transform="matrix(.14035 0 0 .14035 1172 191.36)" x="-8.2421e-7" y="-1.0518e-16" width="256" height="256" fill="none"/></g></g>
@@ -188,10 +195,11 @@ XML: ${xmlString}`;
             <div class="demo-container">
                 <h2>WASM Module Demo</h2>
                 <div class="demo-buttons">
-                    <button on:click={initWasm} disabled={loading}>Initialize WASM</button>
-                    <button on:click={testGetPredefinedTypes} disabled={loading}>Get Predefined Types</button>
-                    <button on:click={testGetEntityAttributes} disabled={loading}>Get Entity Attributes</button>
-                    <button on:click={testCreateIDS} disabled={loading}>Create IDS</button>
+                    <button class="btn" on:click={initWasm} disabled={loading}>Initialize WASM</button>
+                    <button class="btn" on:click={testGetPredefinedTypes} disabled={loading}>Get Predefined Types</button>
+                    <button class="btn" on:click={testGetEntityAttributes} disabled={loading}>Get Entity Attributes</button>
+                    <button class="btn" on:click={testCreateIDS} disabled={loading}>Create IDS</button>
+                    <button class="btn" on:click={testCloseWasm} disabled={loading}>Close WASM</button>
                 </div>
                 <div class="demo-output">
                     <h3>Output:</h3>
@@ -217,25 +225,6 @@ XML: ${xmlString}`;
         gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
-    }
-    
-    .demo-buttons button {
-        padding: 10px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .demo-buttons button:hover:not(:disabled) {
-        background-color: #0056b3;
-    }
-    
-    .demo-buttons button:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
     }
     
     .demo-output {

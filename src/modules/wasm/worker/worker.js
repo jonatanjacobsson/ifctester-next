@@ -17,7 +17,7 @@ self.addEventListener('message', async (event) => {
     try {
         switch (type) {
             case MessageType.INIT:
-                await initializePyodide();
+                await initEnvironment();
                 self.postMessage({
                     type: MessageType.READY,
                     payload: { success: true },
@@ -52,7 +52,7 @@ self.addEventListener('message', async (event) => {
     }
 });
 
-async function initializePyodide() {
+async function initEnvironment() {
     if (ready) return;
 
     // Load Pyodide
@@ -86,7 +86,18 @@ async function initializePyodide() {
     ready = true;
 }
 
+async function cleanupEnvironment() {
+    ready = false;
+    pyodide = null;
+    console.log("[worker] Closed environment");
+}
+
 async function handleApiCall({ method, args = [] }) {
+    if (method === 'internal.cleanup') {
+        await cleanupEnvironment();
+        return true;
+    }
+
     if (method in API.API) {
         return await API.API[method](...args);
     } else if (method in IDS.API) {

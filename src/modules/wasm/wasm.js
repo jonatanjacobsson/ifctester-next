@@ -335,11 +335,16 @@ class WASMModule extends EventEmitter {
         return this._apiCall('exportIDS', idsId);
     }
 
+    async _cleanupWorker() {
+        return this._apiCall('internal.cleanup', {});
+    }
+
     /**
      * Cleanup resources
      */
-    dispose() {
+    async dispose() {
         if (this.worker) {
+            await this._cleanupWorker();
             this.worker.terminate();
             this.worker = null;
         }

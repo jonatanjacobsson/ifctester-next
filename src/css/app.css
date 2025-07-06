@@ -89,7 +89,7 @@ html, body {
     font-family: "DM Sans", "Open Sans", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: black;
+    background-color: #111111;
     color: white;
 }
 
@@ -105,10 +105,11 @@ html, body {
     .main-body {
         flex: 1;
         display: flex;
+        overflow: auto;
 
         .main-content {
             flex: 1;
-            background-color: #0e0e0e;
+            background-color: #191919;
             overflow: auto;
         }
     }
@@ -134,7 +135,7 @@ html, body {
             overflow-y: auto;
             gap: 15px;
 
-            .btn {
+            .tb-btn {
                 padding: 3px;
                 cursor: pointer;
 
@@ -145,7 +146,15 @@ html, body {
                     color: #ffffff69;
                 }
             }
-            .btn:hover svg {
+            .tb-btn.active {
+                background-color: #ffffff0f;
+                border-radius: 7px;
+
+                svg {
+                    color: #ffffffab;
+                }
+            }
+            .tb-btn:hover svg {
                 color: #ffffffab;
             }
         }
@@ -165,6 +174,8 @@ html, body {
                     text-transform: uppercase;
                     font-size: 0.9rem;
                     color: #ffffffa6;
+                    cursor: default;
+                    user-select: none;
                 }
 
                 button {
@@ -207,4 +218,26 @@ html, body {
         background-position: center;
         background-repeat: no-repeat;
     }
+}
+
+.btn {
+    padding: 6px 14px;
+    background-color: #177148;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 200ms;
+    font-size: 0.9rem;
+    box-shadow: 0px 1px 3px #00000070;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: #135c3a;
+}
+
+.btn:disabled {
+    background-color: #115838;
+    color: #ffffff91;
+    cursor: not-allowed;
 }
