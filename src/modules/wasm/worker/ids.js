@@ -20,6 +20,11 @@ const Instances = {
 export async function init(pdide) {
     pyodide = pdide;
     
+    await pyodide.loadPackagesFromImports(`
+        import ifctester.ids
+        import ifctester.facet
+    `);
+
     // Import the core IDS classes
     Ids = pyodide.pyimport("ifctester.ids").Ids;
     Specification = pyodide.pyimport("ifctester.ids").Specification;
@@ -127,3 +132,15 @@ export function formatDate(date) {
     const d = new Date(date);
     return d.toISOString().split('T')[0];
 }
+
+// Expose interface
+export const API = {
+    "createIDS": createIDS,
+    "validateIDS": validateIDS,
+    "exportIDS": exportIDS,
+    "addSpecification": addSpecification,
+    "createEntityFacet": createEntityFacet,
+    "createAttributeFacet": createAttributeFacet,
+    "addApplicability": addApplicability,
+    "addRequirement": addRequirement
+};

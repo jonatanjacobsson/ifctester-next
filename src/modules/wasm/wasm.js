@@ -66,7 +66,7 @@ class WASMModule extends EventEmitter {
         if (!this.worker) throw new Error('Worker not initialized');
 
         const id = this.id();
-        
+
         return new Promise((resolve, reject) => {
             this.pendingMessages.set(id, { resolve, reject });
             
@@ -225,7 +225,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.name="IFCWALL"] - Entity name
      * @param {string} [options.predefinedType=null] - Predefined type
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Entity facet
+     * @returns {Promise<Object>} Entity facet instance ID
      */
     async createEntityFacet(options = {}) {
         return this._apiCall('createEntityFacet', options);
@@ -238,7 +238,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.value=null] - Attribute value
      * @param {string} [options.cardinality="required"] - Cardinality
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Attribute facet
+     * @returns {Promise<Object>} Attribute facet instance ID
      */
     async createAttributeFacet(options = {}) {
         return this._apiCall('createAttributeFacet', options);
@@ -252,7 +252,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.value=null] - Property value
      * @param {string} [options.cardinality="required"] - Cardinality
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Property facet
+     * @returns {Promise<Object>} Property facet instance ID
      */
     async createPropertyFacet(options = {}) {
         return this._apiCall('createPropertyFacet', options);
@@ -264,7 +264,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.value=null] - Material value
      * @param {string} [options.cardinality="required"] - Cardinality
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Material facet
+     * @returns {Promise<Object>} Material facet instance ID
      */
     async createMaterialFacet(options = {}) {
         return this._apiCall('createMaterialFacet', options);
@@ -277,7 +277,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.value=null] - Classification value
      * @param {string} [options.cardinality="required"] - Cardinality
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Classification facet
+     * @returns {Promise<Object>} Classification facet instance ID
      */
     async createClassificationFacet(options = {}) {
         return this._apiCall('createClassificationFacet', options);
@@ -289,7 +289,7 @@ class WASMModule extends EventEmitter {
      * @param {string} [options.entity=null] - Entity name
      * @param {string} [options.cardinality="required"] - Cardinality
      * @param {string} [options.instructions=null] - Instructions
-     * @returns {Promise<Object>} Part-of facet
+     * @returns {Promise<Object>} Part-of facet instance ID
      */
     async createPartOfFacet(options = {}) {
         return this._apiCall('createPartOfFacet', options);
