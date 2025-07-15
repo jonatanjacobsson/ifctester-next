@@ -8,12 +8,6 @@ let pyodide = null;
 let Ids, Specification;
 let Entity, Attribute, Property, Material, Classification, PartOf;
 
-// const Instances = {
-//     ids: new Map(),
-//     specifications: new Map(),
-//     facets: new Map(),
-// };
-
 export async function init(pdide) {
     pyodide = pdide;
     
@@ -46,27 +40,11 @@ export function createIDS() {
 }
 
 export function openIDS(ids_xml, validate = false) {
-    const from_string = pyodide.pyimport("ifctester.ids").from_string;
-    const ids_raw = from_string(ids_xml, validate);
+    const ids_from_xml_string = pyodide.pyimport("api").ids_from_xml_string;
+    const ids_raw = ids_from_xml_string(ids_xml, validate);
 
     return ids_raw.asdict().toJs({dict_converter: Object.fromEntries});
 }
-
-// export function editIDS(ids_id, {title = null, copyright = null, version = null, description = null, author = null, date = null, purpose = null, milestone = null}) {
-//     const ids_raw = Instances.ids.get(ids_id);
-//     if (title) ids_raw.info.title = title;
-//     if (copyright) ids_raw.info.copyright = copyright;
-//     if (version) ids_raw.info.version = version;
-//     if (description) ids_raw.info.description = description;
-//     if (author) ids_raw.info.author = author;
-//     if (date) ids_raw.info.date = formatDate(date);
-//     if (purpose) ids_raw.info.purpose = purpose;
-//     if (milestone) ids_raw.info.milestone = milestone;
-// }
-
-// export function deleteIDS(ids_id) {
-//     Instances.ids.delete(ids_id);
-// }
 
 export function validateIDS(idsObj) {
     const ids_raw = _idsToInstance(idsObj)
@@ -99,41 +77,6 @@ export function createSpecification({name = "Unnamed", ifcVersion = ["IFC2X3", "
 
     return spec.asdict().toJs({dict_converter: Object.fromEntries});
 }
-
-// export function editSpecification(spec_id, {name = null, ifcVersion = null, identifier = null, description = null, instructions = null, usage = null}) {
-//     const spec = Instances.specifications.get(spec_id);
-//     if (name) spec.name = name;
-//     if (ifcVersion) spec.ifcVersion = ifcVersion;
-//     if (identifier) spec.identifier = identifier;
-//     if (description) spec.description = description;
-//     if (instructions) spec.instructions = instructions;
-//     if (usage) spec.set_usage(usage);
-// }
-
-// export function deleteSpecification(spec_id) {
-//     Instances.specifications.delete(spec_id);
-// }
-
-// export function addSpecificationIDS(ids_id, spec_id) {
-//     const ids = Instances.ids.get(ids_id);
-//     const spec = Instances.specifications.get(spec_id);
-//     ids.specifications.append(spec);
-// }
-
-// export function removeSpecificationIDS(ids_id, spec_id) {
-//     const ids = Instances.ids.get(ids_id);
-//     const spec = Instances.specifications.get(spec_id);
-//     ids.specifications.remove(spec);
-// }
-
-// export function editFacet(facet_id, props) {
-//     const facet = Instances.facets.get(facet_id);
-//     for (const [key, value] of Object.entries(props)) {
-//         if (value !== null) {
-//             facet[key] = value;
-//         }
-//     }
-// }
 
 // @instructions
 export function createEntityFacet(clause, {name = "IFCWALL", predefinedType = null, instructions = null}) {
@@ -205,30 +148,6 @@ export function createMaterialFacet(clause, {value = null, uri = null, cardinali
     return material.asdict(clause).toJs({dict_converter: Object.fromEntries});
 }
 
-// export function deleteFacet(facet_id) {
-//     Instances.facets.delete(facet_id);
-// }
-
-// export function addFacet(spec_id, facet_id, type) {
-//     const spec = Instances.specifications.get(spec_id);
-//     const facet = Instances.facets.get(facet_id);
-//     if (type === "applicability") {
-//         spec.applicability.append(facet);
-//     } else if (type === "requirement") {
-//         spec.requirements.append(facet);
-//     }
-// }
-
-// export function removeFacet(spec_id, facet_id, type) {
-//     const spec = Instances.specifications.get(spec_id);
-//     const facet = Instances.facets.get(facet_id);
-//     if (type === "applicability") {
-//         spec.applicability.remove(facet);
-//     } else if (type === "requirement") {
-//         spec.requirements.remove(facet);
-//     }
-// }
-
 // Helper function to convert date to ISO format string
 export function formatDate(date) {
     if (!date) return null;
@@ -240,23 +159,13 @@ export function formatDate(date) {
 export const API = {
     "createIDS": createIDS,
     "openIDS": openIDS,
-    // "editIDS": editIDS,
     "validateIDS": validateIDS,
     "exportIDS": exportIDS,
-    // "deleteIDS": deleteIDS,
     "createSpecification": createSpecification,
-    // "editSpecification": editSpecification,
-    // "deleteSpecification": deleteSpecification,
-    // "addSpecificationIDS": addSpecificationIDS,
-    // "removeSpecificationIDS": removeSpecificationIDS,
-    // "editFacet": editFacet,
     "createEntityFacet": createEntityFacet,
     "createAttributeFacet": createAttributeFacet,
     "createClassificationFacet": createClassificationFacet,
     "createPartOfFacet": createPartOfFacet,
     "createPropertyFacet": createPropertyFacet,
     "createMaterialFacet": createMaterialFacet,
-    // "deleteFacet": deleteFacet,
-    // "addFacet": addFacet,
-    // "removeFacet": removeFacet
 };

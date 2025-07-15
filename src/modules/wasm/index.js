@@ -181,33 +181,12 @@ class WASMModule extends EventEmitter {
         return this._apiCall('openIDS', idsXml, validate);
     }
 
-    // /**
-    //  * Edit an IDS instance
-    //  */
-    // async editIDS(idsId, options = {}) {
-    //     return this._apiCall('editIDS', idsId, options);
-    // }
-
     /**
      * Create a specification
      */
     async createSpecification(options = {}) {
         return this._apiCall('createSpecification', options);
     }
-
-    // /**
-    //  * Edit a specification
-    //  */
-    // async editSpecification(specId, options = {}) {
-    //     return this._apiCall('editSpecification', specId, options);
-    // }
-
-    // /**
-    //  * Edit a facet
-    //  */
-    // async editFacet(facetId, options = {}) {
-    //     return this._apiCall('editFacet', facetId, options);
-    // }
 
     /**
      * Create an entity facet
@@ -250,55 +229,6 @@ class WASMModule extends EventEmitter {
     async createPartOfFacet(clause, options = {}) {
         return this._apiCall('createPartOfFacet', clause, options);
     }
-    
-    // /**
-    //  * Delete an IDS instance
-    //  */
-    // async deleteIDS(idsId) {
-    //     return this._apiCall('deleteIDS', idsId);
-    // }
-
-    // /**
-    //  * Delete a specification
-    //  */
-    // async deleteSpecification(specId) {
-    //     return this._apiCall('deleteSpecification', specId);
-    // }
-
-    // /**
-    //  * Add a specification to an IDS instance
-    //  */
-    // async addSpecificationIDS(idsId, specId) {
-    //     return this._apiCall('addSpecificationIDS', idsId, specId);
-    // }
-
-    // /**
-    //  * Remove a specification from an IDS instance
-    //  */
-    // async removeSpecificationIDS(idsId, specId) {
-    //     return this._apiCall('removeSpecificationIDS', idsId, specId);
-    // }
-
-    // /**
-    //  * Delete a facet
-    //  */
-    // async deleteFacet(facetId) {
-    //     return this._apiCall('deleteFacet', facetId);
-    // }
-
-    // /**
-    //  * Add a facet to a specification
-    //  */
-    // async addFacet(specId, facetId, type) {
-    //     return this._apiCall('addFacet', specId, facetId, type);
-    // }
-
-    // /**
-    //  * Remove a facet from a specification
-    //  */
-    // async removeFacet(specId, facetId, type) {
-    //     return this._apiCall('removeFacet', specId, facetId, type);
-    // }
 
     /**
      * Validate an IDS object
@@ -346,23 +276,13 @@ export const {
     auditIfc,
     createIDS,
     openIDS,
-    // editIDS,
-    // deleteIDS,
     createSpecification,
-    // editSpecification,
-    // deleteSpecification,
-    // addSpecificationIDS,
-    // removeSpecificationIDS,
-    // editFacet,
     createEntityFacet,
     createAttributeFacet,
     createPropertyFacet,
     createMaterialFacet,
     createClassificationFacet,
     createPartOfFacet,
-    // deleteFacet,
-    // addFacet,
-    // removeFacet,
     validateIDS,
     exportIDS,
     dispose

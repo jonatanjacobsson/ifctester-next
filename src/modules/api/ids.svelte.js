@@ -55,7 +55,7 @@ export async function openDocument() {
                 reader.onload = async (e) => {
                     try {
                         const fileContent = e.target.result;
-                        const doc = await wasm.openIDS(fileContent);
+                        const doc = await wasm.openIDS(fileContent, false);
                         const docId = id();
 
                         // Add document to list and set as active
@@ -141,11 +141,13 @@ export async function createFacet(docId, specId, clause, facet) {
         facetObj = await wasm.createMaterialFacet(clause, {});
     }
 
-    console.log("facetObj", facetObj)
-
     if (!(facet in Module.documents[docId].specifications.specification[specId][clause])) {
         Module.documents[docId].specifications.specification[specId][clause][facet] = [];
     }
 
     Module.documents[docId].specifications.specification[specId][clause][facet].push(facetObj);
+}
+
+export async function deleteFacet(docId, specId, clause, facet, facetId) {
+    delete Module.documents[docId].specifications.specification[specId][clause][facet][facetId];
 }

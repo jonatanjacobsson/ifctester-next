@@ -2,6 +2,9 @@ import ifcopenshell
 import ifcopenshell.util
 import ifcopenshell.util.pset
 import ifcopenshell.util.schema
+import xml.etree.ElementTree as ET
+from xmlschema.validators.exceptions import XMLSchemaValidationError
+from ifctester.ids import Ids, IdsXmlValidationError, get_schema
 
 # https://github.com/buildingSMART/IDS/blob/9914d568c7ac037acd97e58a0d16e9f93c3e3416/Schema/ids.xsd#L232
 ifc_schemas = ["IFC2X3", "IFC4", "IFC4X3_ADD2"]
@@ -138,3 +141,18 @@ def get_standard_classification_systems():
         'Uniformat': {'source': 'UniFormat', 'tokens': ['.']},
         'VMSW': {'source': 'VMSW', 'tokens': ['.']}
     }
+
+def ids_from_xml_string(xml: str, validate: bool = False) -> Ids:
+    tree = ET.ElementTree(ET.fromstring(xml))
+    try:
+        if validate:
+            get_schema().validate(tree)
+        decode = get_schema().decode(
+            tree, strip_namespaces=True, namespaces={
+                "": "http://standards.buildingsmart.org/IDS",
+                "xs": "http://www.w3.org/2001/XMLSchema"
+            }
+        )
+    except XMLSchemaValidationError as e:
+        raise IdsXmlValidationError(e, "Provided XML appears to be invalid. See details above.")
+    return Ids().parse(decode)

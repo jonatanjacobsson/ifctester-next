@@ -57,7 +57,6 @@ async function initEnvironment() {
 
     // Load Pyodide
     const scriptUrl = new URL('/pyodide/pyodide.mjs', import.meta.url);
-    // const { loadPyodide } = await import('https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.mjs');
     const { loadPyodide } = await import(scriptUrl.href);
     pyodide = await loadPyodide({
         convertNullToNone: true

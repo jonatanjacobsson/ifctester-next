@@ -23,6 +23,7 @@
         } catch (error) {
             if (error.message !== 'File selection cancelled') {
                 alert('Error opening file: ' + error.message);
+                console.error(error);
             }
         }
     }
