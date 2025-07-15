@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .claude
+example.json
+facet.py
+ids.py
+ids.xsd

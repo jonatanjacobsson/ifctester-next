@@ -2,20 +2,17 @@
  * IDS module
  */
 
-import hyperid from "hyperid";
-
 let pyodide = null;
-let id = hyperid();
 
 // IDS Python classes
 let Ids, Specification;
 let Entity, Attribute, Property, Material, Classification, PartOf;
 
-const Instances = {
-    ids: new Map(),
-    specifications: new Map(),
-    facets: new Map(),
-};
+// const Instances = {
+//     ids: new Map(),
+//     specifications: new Map(),
+//     facets: new Map(),
+// };
 
 export async function init(pdide) {
     pyodide = pdide;
@@ -38,24 +35,41 @@ export async function init(pdide) {
     PartOf = pyodide.pyimport("ifctester.facet").PartOf;
 }
 
-export function createIDS({title = "Untitled", copyright = null, version = null, description = null, author = null, date = null, purpose = null, milestone = null}) {
-    const ids_raw = Ids.callKwargs({
-        title: title,
-        copyright: copyright,
-        version: version,
-        description: description,
-        author: author,
-        date: formatDate(date),
-        purpose: purpose,
-        milestone: milestone
-    });
-    const ids_id = id();
-    Instances.ids.set(ids_id, ids_raw);
-    return ids_id;
+function _idsToInstance(idsObj) {
+    const ids_raw = Ids();
+    return ids_raw.parse(pyodide.toPy(idsObj))
 }
 
-export function validateIDS(ids_id) {
-    const ids_raw = Instances.ids.get(ids_id);
+export function createIDS() {
+    const ids_raw = Ids()
+    return ids_raw.asdict().toJs({dict_converter: Object.fromEntries});
+}
+
+export function openIDS(ids_xml, validate = false) {
+    const from_string = pyodide.pyimport("ifctester.ids").from_string;
+    const ids_raw = from_string(ids_xml, validate);
+
+    return ids_raw.asdict().toJs({dict_converter: Object.fromEntries});
+}
+
+// export function editIDS(ids_id, {title = null, copyright = null, version = null, description = null, author = null, date = null, purpose = null, milestone = null}) {
+//     const ids_raw = Instances.ids.get(ids_id);
+//     if (title) ids_raw.info.title = title;
+//     if (copyright) ids_raw.info.copyright = copyright;
+//     if (version) ids_raw.info.version = version;
+//     if (description) ids_raw.info.description = description;
+//     if (author) ids_raw.info.author = author;
+//     if (date) ids_raw.info.date = formatDate(date);
+//     if (purpose) ids_raw.info.purpose = purpose;
+//     if (milestone) ids_raw.info.milestone = milestone;
+// }
+
+// export function deleteIDS(ids_id) {
+//     Instances.ids.delete(ids_id);
+// }
+
+export function validateIDS(idsObj) {
+    const ids_raw = _idsToInstance(idsObj)
     const tempFilename = `temp_${Date.now()}.xml`;
     const isValid = ids_raw.to_xml(tempFilename); // to_xml validates the XML as well, as far as I understand
   
@@ -68,63 +82,152 @@ export function validateIDS(ids_id) {
     return isValid;
 }
 
-export function exportIDS(ids_id) {
-    const ids_raw = Instances.ids.get(ids_id);
+export function exportIDS(idsObj) {
+    const ids_raw = _idsToInstance(idsObj)
     return ids_raw.to_string();
 }
 
-export function addSpecification(ids_id, {name = "Unnamed", minOccurs = 0, maxOccurs = "unbounded", ifcVersion = null, identifier = null, description = null, instructions = null, usage = "required"}) {
-    const ids_raw = Instances.ids.get(ids_id);
+export function createSpecification({name = "Unnamed", ifcVersion = ["IFC2X3", "IFC4", "IFC4X3_ADD2"], identifier = null, description = null, instructions = null, usage = "required"}) {
     const spec = Specification.callKwargs({
         name: name,
-        minOccurs: minOccurs,
-        maxOccurs: maxOccurs,
         ifcVersion: ifcVersion,
         identifier: identifier,
         description: description,
         instructions: instructions
     });
     spec.set_usage(usage);
-    ids_raw.specifications.append(spec);
-    return ids_raw.specifications.toJs().length - 1;
+
+    return spec.asdict().toJs({dict_converter: Object.fromEntries});
 }
 
-export function createEntityFacet({name = "IFCWALL", predefinedType = null, instructions = null}) {
-    const entity_id = id();
+// export function editSpecification(spec_id, {name = null, ifcVersion = null, identifier = null, description = null, instructions = null, usage = null}) {
+//     const spec = Instances.specifications.get(spec_id);
+//     if (name) spec.name = name;
+//     if (ifcVersion) spec.ifcVersion = ifcVersion;
+//     if (identifier) spec.identifier = identifier;
+//     if (description) spec.description = description;
+//     if (instructions) spec.instructions = instructions;
+//     if (usage) spec.set_usage(usage);
+// }
+
+// export function deleteSpecification(spec_id) {
+//     Instances.specifications.delete(spec_id);
+// }
+
+// export function addSpecificationIDS(ids_id, spec_id) {
+//     const ids = Instances.ids.get(ids_id);
+//     const spec = Instances.specifications.get(spec_id);
+//     ids.specifications.append(spec);
+// }
+
+// export function removeSpecificationIDS(ids_id, spec_id) {
+//     const ids = Instances.ids.get(ids_id);
+//     const spec = Instances.specifications.get(spec_id);
+//     ids.specifications.remove(spec);
+// }
+
+// export function editFacet(facet_id, props) {
+//     const facet = Instances.facets.get(facet_id);
+//     for (const [key, value] of Object.entries(props)) {
+//         if (value !== null) {
+//             facet[key] = value;
+//         }
+//     }
+// }
+
+// @instructions
+export function createEntityFacet(clause, {name = "IFCWALL", predefinedType = null, instructions = null}) {
     const entity = Entity.callKwargs({
         name: name,
         predefinedType: predefinedType,
         instructions: instructions
     });
-    Instances.facets.set(entity_id, entity);
-    return entity_id;
+    return entity.asdict(clause).toJs({dict_converter: Object.fromEntries});
 }
 
-export function createAttributeFacet({name = "Name", value = null, cardinality = "required", instructions = null}) {
-    const attribute_id = id();
+// @cardinality, @instructions
+export function createAttributeFacet(clause, {name = "Name", value = null, cardinality = "required", instructions = null}) {
     const attribute = Attribute.callKwargs({
         name: name,
         value: value,
         cardinality: cardinality,
         instructions: instructions
     });
-    Instances.facets.set(attribute_id, attribute);
-    return attribute_id;
+    return attribute.asdict(clause).toJs({dict_converter: Object.fromEntries});
 }
 
-export function addApplicability(ids_id, spec_id, facet_id) {
-    const ids_raw = Instances.ids.get(ids_id);
-    const spec = ids_raw.specifications[spec_id];
-    const facet = Instances.facets.get(facet_id);
-    spec.applicability.append(facet);
+// @uri, @cardinality, @instructions
+export function createClassificationFacet(clause, {value = null, system = null, uri = null, cardinality = "required", instructions = null}) {
+    const classification = Classification.callKwargs({
+        value: value,
+        system: system,
+        uri: uri,
+        cardinality: cardinality,
+        instructions: instructions
+    });
+    return classification.asdict(clause).toJs({dict_converter: Object.fromEntries});
 }
 
-export function addRequirement(ids_id, spec_id, facet_id) {
-    const ids_raw = Instances.ids.get(ids_id);
-    const spec = ids_raw.specifications[spec_id];
-    const facet = Instances.facets.get(facet_id);
-    spec.requirements.append(facet);
+// @relation, @cardinality, @instructions
+export function createPartOfFacet(clause, {name = "IFCWALL", predefinedType = null, relation = null, cardinality = "required", instructions = null}) {
+    const part_of = PartOf.callKwargs({
+        name: name,
+        predefinedType: predefinedType,
+        relation: relation,
+        cardinality: cardinality,
+        instructions: instructions
+    });
+    return part_of.asdict(clause).toJs({dict_converter: Object.fromEntries});
 }
+
+// @dataType, @uri, @cardinality, @instructions
+export function createPropertyFacet(clause, {propertySet = "Property_Set", baseName = "propertyName", value = null, dataType = null, uri = null, cardinality = "required", instructions = null}) {
+    const property = Property.callKwargs({
+        propertySet: propertySet,
+        baseName: baseName,
+        value: value,
+        dataType: dataType,
+        uri: uri,
+        cardinality: cardinality,
+        instructions: instructions
+    });
+    return property.asdict(clause).toJs({dict_converter: Object.fromEntries});
+}
+
+// @uri, @cardinality, @instructions
+export function createMaterialFacet(clause, {value = null, uri = null, cardinality = "required", instructions = null}) {
+    const material = Material.callKwargs({
+        value: value,
+        uri: uri,
+        cardinality: cardinality,
+        instructions: instructions
+    });
+    return material.asdict(clause).toJs({dict_converter: Object.fromEntries});
+}
+
+// export function deleteFacet(facet_id) {
+//     Instances.facets.delete(facet_id);
+// }
+
+// export function addFacet(spec_id, facet_id, type) {
+//     const spec = Instances.specifications.get(spec_id);
+//     const facet = Instances.facets.get(facet_id);
+//     if (type === "applicability") {
+//         spec.applicability.append(facet);
+//     } else if (type === "requirement") {
+//         spec.requirements.append(facet);
+//     }
+// }
+
+// export function removeFacet(spec_id, facet_id, type) {
+//     const spec = Instances.specifications.get(spec_id);
+//     const facet = Instances.facets.get(facet_id);
+//     if (type === "applicability") {
+//         spec.applicability.remove(facet);
+//     } else if (type === "requirement") {
+//         spec.requirements.remove(facet);
+//     }
+// }
 
 // Helper function to convert date to ISO format string
 export function formatDate(date) {
@@ -136,11 +239,24 @@ export function formatDate(date) {
 // Expose interface
 export const API = {
     "createIDS": createIDS,
+    "openIDS": openIDS,
+    // "editIDS": editIDS,
     "validateIDS": validateIDS,
     "exportIDS": exportIDS,
-    "addSpecification": addSpecification,
+    // "deleteIDS": deleteIDS,
+    "createSpecification": createSpecification,
+    // "editSpecification": editSpecification,
+    // "deleteSpecification": deleteSpecification,
+    // "addSpecificationIDS": addSpecificationIDS,
+    // "removeSpecificationIDS": removeSpecificationIDS,
+    // "editFacet": editFacet,
     "createEntityFacet": createEntityFacet,
     "createAttributeFacet": createAttributeFacet,
-    "addApplicability": addApplicability,
-    "addRequirement": addRequirement
+    "createClassificationFacet": createClassificationFacet,
+    "createPartOfFacet": createPartOfFacet,
+    "createPropertyFacet": createPropertyFacet,
+    "createMaterialFacet": createMaterialFacet,
+    // "deleteFacet": deleteFacet,
+    // "addFacet": addFacet,
+    // "removeFacet": removeFacet
 };

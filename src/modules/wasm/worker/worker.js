@@ -2,7 +2,7 @@
  * WASM worker
 */
 
-import { MessageType } from '../wasm';
+import { MessageType } from '../index';
 import config from '../../../config.json';
 import * as IDS from './ids.js';
 import * as API from './api';
@@ -56,7 +56,9 @@ async function initEnvironment() {
     if (ready) return;
 
     // Load Pyodide
-    const { loadPyodide } = await import('https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.mjs');
+    const scriptUrl = new URL('/pyodide/pyodide.mjs', import.meta.url);
+    // const { loadPyodide } = await import('https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.mjs');
+    const { loadPyodide } = await import(scriptUrl.href);
     pyodide = await loadPyodide({
         convertNullToNone: true
     });
