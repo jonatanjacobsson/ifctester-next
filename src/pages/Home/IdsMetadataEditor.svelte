@@ -1,4 +1,5 @@
 <script>
+    import Svelecte from 'svelecte';
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null);
@@ -17,35 +18,36 @@
     <div class="form-grid">
         <div class="form-group">
             <label>Title</label>
-            <input type="text" bind:value={() => getProp("title"), (v) => setProp("title", v)} placeholder="Enter IDS title">
+            <input class="form-input" type="text" bind:value={() => getProp("title"), (v) => setProp("title", v)} placeholder="Enter IDS title">
+            <!-- <Svelecte class="form-ac-input" options={["Item 1", "Dinosaur 2", "Superhero 3"]} allowEditing={true} creatable={true} creatablePrefix="" resetOnBlur={false} bind:value={() => getProp("title"), (v) => setProp("title", v)} placeholder="Enter IDS title" /> -->
         </div>
         <div class="form-group">
             <label>Author</label>
-            <input type="email" bind:value={() => getProp("author"), (v) => setProp("author", v)} placeholder="Enter author">
+            <input class="form-input" type="email" bind:value={() => getProp("author"), (v) => setProp("author", v)} placeholder="Enter author">
         </div>
         <div class="form-group">
             <label>Version</label>
-            <input type="text" bind:value={() => getProp("version"), (v) => setProp("version", v)} placeholder="Enter version">
+            <input class="form-input" type="text" bind:value={() => getProp("version"), (v) => setProp("version", v)} placeholder="Enter version">
         </div>
         <div class="form-group">
             <label>Date</label>
-            <input type="date" bind:value={() => getProp("date"), (v) => setProp("date", v)}>
+            <input class="form-input" type="date" bind:value={() => getProp("date"), (v) => setProp("date", v)}>
         </div>
         <div class="form-group full-width">
             <label>Description</label>
-            <textarea bind:value={() => getProp("description"), (v) => setProp("description", v)} placeholder="Enter description" rows="3"></textarea>
+            <textarea class="form-input" bind:value={() => getProp("description"), (v) => setProp("description", v)} placeholder="Enter description" rows="3"></textarea>
         </div>
         <div class="form-group">
             <label>Purpose</label>
-            <input type="text" bind:value={() => getProp("purpose"), (v) => setProp("purpose", v)} placeholder="Enter purpose">
+            <input class="form-input" type="text" bind:value={() => getProp("purpose"), (v) => setProp("purpose", v)} placeholder="Enter purpose">
         </div>
         <div class="form-group">
             <label>Milestone</label>
-            <input type="text" bind:value={() => getProp("milestone"), (v) => setProp("milestone", v)} placeholder="Enter milestone">
+            <input class="form-input" type="text" bind:value={() => getProp("milestone"), (v) => setProp("milestone", v)} placeholder="Enter milestone">
         </div>
         <div class="form-group full-width">
             <label>Copyright</label>
-            <input type="text" bind:value={() => getProp("copyright"), (v) => setProp("copyright", v)} placeholder="Enter copyright">
+            <input class="form-input" type="text" bind:value={() => getProp("copyright"), (v) => setProp("copyright", v)} placeholder="Enter copyright">
         </div>
     </div>
 </div>

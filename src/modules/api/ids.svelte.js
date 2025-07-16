@@ -88,7 +88,13 @@ export async function openDocument() {
 
 export async function exportDocument(docId) {
     const doc = $state.snapshot(Module.documents[docId]);
-    console.log("Exporting..", doc);
+
+    // Validate
+    if (doc.specifications.specification.length < 1) {
+        alert("Please create at least one specification before exporting the document.");
+        return;
+    }
+
     const xmlString = await wasm.exportIDS(doc);
     
     // Create and download file

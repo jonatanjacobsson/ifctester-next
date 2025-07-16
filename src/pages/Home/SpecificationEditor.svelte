@@ -31,16 +31,16 @@
     <div class="form-grid">
         <div class="form-group">
             <label for="spec-name">Name</label>
-            <input id="spec-name" type="text" bind:value={() => getProp("@name"), (v) => setProp("@name", v)} placeholder="Enter specification name">
+            <input class="form-input" id="spec-name" type="text" bind:value={() => getProp("@name"), (v) => setProp("@name", v)} placeholder="Enter specification name">
         </div>
         <div class="form-group">
             <label for="spec-identifier">Identifier</label>
-            <input id="spec-identifier" type="text" bind:value={() => getProp("@identifier"), (v) => setProp("@identifier", v)} placeholder="Enter identifier">
+            <input class="form-input" id="spec-identifier" type="text" bind:value={() => getProp("@identifier"), (v) => setProp("@identifier", v)} placeholder="Enter identifier">
         </div>
         <div class="form-group">
             <!-- TODO: Usage should set @minOccurs and @maxOccurs, fix this -->
             <label for="spec-cardinality">Usage</label>
-            <select id="spec-cardinality">
+            <select class="form-input" id="spec-cardinality">
                 <option value="required">Required</option>
                 <option value="optional">Optional</option>
                 <option value="prohibited">Prohibited</option>
@@ -65,11 +65,11 @@
         </div>
         <div class="form-group full-width">
             <label for="spec-description">Description</label>
-            <textarea id="spec-description" bind:value={() => getProp("@description"), (v) => setProp("@description", v)} placeholder="Enter description" rows="3"></textarea>
+            <textarea class="form-input" id="spec-description" bind:value={() => getProp("@description"), (v) => setProp("@description", v)} placeholder="Enter description" rows="3"></textarea>
         </div>
         <div class="form-group full-width">
             <label for="spec-instructions">Instructions</label>
-            <textarea id="spec-instructions" bind:value={() => getProp("@instructions"), (v) => setProp("@instructions", v)} placeholder="Enter instructions" rows="3"></textarea>
+            <textarea class="form-input" id="spec-instructions" bind:value={() => getProp("@instructions"), (v) => setProp("@instructions", v)} placeholder="Enter instructions" rows="3"></textarea>
         </div>
     </div>
 </div>

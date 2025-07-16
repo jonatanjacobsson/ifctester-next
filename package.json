@@ -27,6 +27,7 @@
   "dependencies": {
     "eventemitter3": "^5.0.1",
     "hyperid": "^3.3.0",
+    "svelecte": "^5.2.0",
     "svelte-spa-router": "^4.0.1"
   }
 }

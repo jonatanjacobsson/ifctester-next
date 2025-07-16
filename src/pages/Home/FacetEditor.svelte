@@ -40,64 +40,64 @@
         {#if facetType === 'entity'}
             <div class="form-group">
                 <label>Entity Name</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcWall">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcWall">
             </div>
             <div class="form-group">
                 <label>Predefined Type</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
             </div>
         {:else if facetType === 'attribute'}
             <div class="form-group">
                 <label>Attribute Name</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., Name">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., Name">
             </div>
             <div class="form-group">
                 <label>Value</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
             </div>
         {:else if facetType === 'property'}
             <div class="form-group">
                 <label>Property Set</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "propertySet"), (v) => setProp("simpleValue", "propertySet", v)} placeholder="e.g., Pset_WallCommon">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "propertySet"), (v) => setProp("simpleValue", "propertySet", v)} placeholder="e.g., Pset_WallCommon">
             </div>
             <div class="form-group">
                 <label>Base Name</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "baseName"), (v) => setProp("simpleValue", "baseName", v)} placeholder="e.g., FireRating">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "baseName"), (v) => setProp("simpleValue", "baseName", v)} placeholder="e.g., FireRating">
             </div>
             <div class="form-group">
                 <label>Value</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
             </div>
             <div class="form-group">
                 <label>Data Type</label>
-                <input type="text" bind:value={() => getSpecialProp('@dataType'), (v) => setSpecialProp('@dataType', v)} placeholder="Optional data type">
+                <input class="form-input" type="text" bind:value={() => getSpecialProp('@dataType'), (v) => setSpecialProp('@dataType', v)} placeholder="Optional data type">
             </div>
         {:else if facetType === 'material'}
             <div class="form-group">
                 <label>Material Value</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., Concrete">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., Concrete">
             </div>
         {:else if facetType === 'classification'}
             <div class="form-group">
                 <label>System</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "system"), (v) => setProp("simpleValue", "system", v)} placeholder="e.g., Uniclass 2015">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "system"), (v) => setProp("simpleValue", "system", v)} placeholder="e.g., Uniclass 2015">
             </div>
             <div class="form-group">
                 <label>Value</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., EF_25_10_25">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., EF_25_10_25">
             </div>
         {:else if facetType === 'partOf'}
             <div class="form-group">
                 <label>Entity Name</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcSpace">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcSpace">
             </div>
             <div class="form-group">
                 <label>Predefined Type</label>
-                <input type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
+                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
             </div>
             <div class="form-group">
                 <label>Relation</label>
-                <select bind:value={() => getSpecialProp("@relation"), (v) => setSpecialProp("@relation", v)}>
+                <select class="form-input" bind:value={() => getSpecialProp("@relation"), (v) => setSpecialProp("@relation", v)}>
                     <option value="">Select relation...</option>
                     <option value="IFCRELAGGREGATES">IFCRELAGGREGATES</option>
                     <option value="IFCRELASSIGNSTOGROUP">IFCRELASSIGNSTOGROUP</option>
@@ -111,7 +111,7 @@
             {#if facetType !== 'entity'}
                 <div class="form-group">
                     <label>Cardinality</label>
-                    <select bind:value={() => getSpecialProp("@cardinality"), (v) => setSpecialProp("@cardinality", v)}>
+                    <select class="form-input" bind:value={() => getSpecialProp("@cardinality"), (v) => setSpecialProp("@cardinality", v)}>
                         <option value="required">Required</option>
                         <option value="optional">Optional</option>
                         <option value="prohibited">Prohibited</option>
@@ -120,7 +120,7 @@
             {/if}
             <div class="form-group full-width">
                 <label>Instructions</label>
-                <textarea bind:value={() => getSpecialProp("@instructions"), (v) => setSpecialProp("@instructions", v)} placeholder="Optional instructions for IFC authors" rows="2"></textarea>
+                <textarea class="form-input" bind:value={() => getSpecialProp("@instructions"), (v) => setSpecialProp("@instructions", v)} placeholder="Optional instructions for IFC authors" rows="2"></textarea>
             </div>
         {/if}
     </div>

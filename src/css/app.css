@@ -36,6 +36,39 @@
     --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.551 0.027 264.364);
+
+    --sv-bg: #292929;
+    --sv-border: none;
+    --sv-selection-gap: 10px 14px;
+    --sv-min-height: 46px;
+    --sv-dropdown-bg: #373737;
+    --sv-dropdown-shadow: 0 6px 12px #0000002d;
+    --sv-item-wrap-padding: 5px 14px;
+
+    --sv-disabled-bg: #eee;
+    --sv-border-radius: 4px;
+    --sv-control-bg: var(--sv-bg);
+    --sv-item-selected-bg: #626262;
+    --sv-item-btn-color: #ccc;
+    --sv-item-btn-color-hover: #ccc;
+    --sv-item-btn-bg: #626262;
+    --sv-item-btn-bg-hover: #bc6063;
+    --sv-icon-color: #bbb;
+    --sv-icon-color-hover: #ccc;
+    --sv-icon-bg: transparent;
+    --sv-icon-size: 20px;
+    --sv-separator-bg: #626262;
+    --sv-btn-border: 0;
+    --sv-placeholder-color: #ccccd6;
+    --sv-dropdown-offset: 1px;
+    --sv-dropdown-width: auto;
+    --sv-dropdown-height: 320px;
+    --sv-dropdown-active-bg: #ffffff0f;
+    --sv-dropdown-selected-bg: #ffffff0f;
+    --sv-create-kbd-border: 1px solid #626262;
+    --sv-create-kbd-bg: #626262;
+    --sv-create-disabled-bg: #fcbaba;
+    --sv-loader-border: 2px solid #626262;
 }
 
 @theme inline {
@@ -508,44 +541,52 @@ html, body {
     .form-group {
         display: flex;
         flex-direction: column;
+
+        label {
+            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #b0b0b0;
+        }
+
+        .form-input {
+            padding: 10px 14px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: #ffffff12;
+            color: #e0e0e0;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #008242;
+            box-shadow: 0 0 0 0.2rem #00824254;
+        }
+        .form-input::placeholder {
+            color: #888888;
+        }
+
+        .form-ac-input {
+            cursor: text;
+
+            .sv-buttons {
+                display: none;
+            }
+
+            button .shortcut {
+                font-size: 0.7rem;
+            }
+
+            .sv-control input::placeholder {
+                color: #888888;
+            }
+        }
     }
-    
     .form-group.full-width {
         grid-column: 1 / -1;
     }
-    
-    .form-group label {
-        margin-bottom: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        color: #b0b0b0;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 10px 14px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        font-size: 1rem;
-        transition: border-color 0.2s;
-        background: #ffffff12;
-        color: #e0e0e0;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #008242;
-        box-shadow: 0 0 0 0.2rem #00824254;
-    }
-    
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-        color: #888888;
-    }
-    
+
     .radio-group {
         display: flex;
         gap: 16px;
