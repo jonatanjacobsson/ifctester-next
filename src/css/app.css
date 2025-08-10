@@ -557,6 +557,7 @@ html, body {
             transition: border-color 0.2s;
             background: #ffffff12;
             color: #e0e0e0;
+            width: 100%;
         }
         .form-input:focus {
             outline: none;
@@ -703,7 +704,7 @@ html, body {
     
     .restriction-form {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        /* grid-template-columns: 1fr 1fr; */
         gap: 12px;
     }
     

@@ -50,7 +50,7 @@
                 {#if facetType !== "@minOccurs" && facetType !== "@maxOccurs"}
                     {#each facets as facet, index}
                         <FacetEditor 
-                            {facet} 
+                            bind:facet={facets[index]} 
                             {facetType} 
                             activeTab="applicability" 
                             {removeFacet} 

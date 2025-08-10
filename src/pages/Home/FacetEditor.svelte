@@ -1,28 +1,18 @@
 <script>
+    import RestrictionEditor from './RestrictionEditor.svelte';
+    
     /**
      * Applicability facets wont have: "@uri", "@instructions", "@cardinality"
      * @ in name --> simple string value
      * else --> can be simpleValue, Restriction or list of Restrictions
     */
-    let { facet, facetType, activeTab, removeFacet, index } = $props();
+    let { facet = $bindable(), facetType, activeTab, removeFacet, index } = $props();
 
     const getSpecialProp = (prop) => {
         return facet[prop] ?? "";
     };
     const setSpecialProp = (prop, value) => {
         facet[prop] = value;
-    };
-
-    const getProp = (type, prop) => {
-        if (type == "simpleValue") {
-            return facet[prop]?.simpleValue ?? "";
-        }
-    };
-    const setProp = (type, prop, value) => {
-        if (type == "simpleValue") {
-            if (!facet[prop]) facet[prop] = {};
-            facet[prop].simpleValue = value;
-        }
     };
 </script>
 
@@ -38,63 +28,27 @@
     </div>
     <div class="restriction-form">
         {#if facetType === 'entity'}
-            <div class="form-group">
-                <label>Entity Name</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcWall">
-            </div>
-            <div class="form-group">
-                <label>Predefined Type</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcWall" />
+            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" />
         {:else if facetType === 'attribute'}
-            <div class="form-group">
-                <label>Attribute Name</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., Name">
-            </div>
-            <div class="form-group">
-                <label>Value</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Attribute Name" placeholder="e.g., Name" />
+            <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="Optional value" />
         {:else if facetType === 'property'}
-            <div class="form-group">
-                <label>Property Set</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "propertySet"), (v) => setProp("simpleValue", "propertySet", v)} placeholder="e.g., Pset_WallCommon">
-            </div>
-            <div class="form-group">
-                <label>Base Name</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "baseName"), (v) => setProp("simpleValue", "baseName", v)} placeholder="e.g., FireRating">
-            </div>
-            <div class="form-group">
-                <label>Value</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="Optional value">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="propertySet" label="Property Set" placeholder="e.g., Pset_WallCommon" />
+            <RestrictionEditor bind:facet={facet} fieldName="baseName" label="Base Name" placeholder="e.g., FireRating" />
+            <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="Optional value" />
             <div class="form-group">
                 <label>Data Type</label>
                 <input class="form-input" type="text" bind:value={() => getSpecialProp('@dataType'), (v) => setSpecialProp('@dataType', v)} placeholder="Optional data type">
             </div>
         {:else if facetType === 'material'}
-            <div class="form-group">
-                <label>Material Value</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., Concrete">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="value" label="Material Value" placeholder="e.g., Concrete" />
         {:else if facetType === 'classification'}
-            <div class="form-group">
-                <label>System</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "system"), (v) => setProp("simpleValue", "system", v)} placeholder="e.g., Uniclass 2015">
-            </div>
-            <div class="form-group">
-                <label>Value</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "value"), (v) => setProp("simpleValue", "value", v)} placeholder="e.g., EF_25_10_25">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="system" label="System" placeholder="e.g., Uniclass 2015" />
+            <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="e.g., EF_25_10_25" />
         {:else if facetType === 'partOf'}
-            <div class="form-group">
-                <label>Entity Name</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "name"), (v) => setProp("simpleValue", "name", v)} placeholder="e.g., IfcSpace">
-            </div>
-            <div class="form-group">
-                <label>Predefined Type</label>
-                <input class="form-input" type="text" bind:value={() => getProp("simpleValue", "predefinedType"), (v) => setProp("simpleValue", "predefinedType", v)} placeholder="e.g., SOLIDWALL">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcSpace" />
+            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" />
             <div class="form-group">
                 <label>Relation</label>
                 <select class="form-input" bind:value={() => getSpecialProp("@relation"), (v) => setSpecialProp("@relation", v)}>

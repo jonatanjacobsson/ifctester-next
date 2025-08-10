@@ -49,7 +49,7 @@
             {#each Object.entries(activeSpecification.requirements) as [facetType, facets]}
                 {#each facets as facet, index}
                     <FacetEditor 
-                        {facet} 
+                        bind:facet={facets[index]} 
                         {facetType} 
                         activeTab="requirements" 
                         {removeFacet} 
