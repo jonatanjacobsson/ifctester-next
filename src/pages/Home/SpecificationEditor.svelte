@@ -25,6 +25,37 @@
             }
         }
     };
+
+    const getUsage = () => {
+        if (!activeSpecification?.applicability) return 'required';
+        const minOccurs = activeSpecification.applicability["@minOccurs"];
+        const maxOccurs = activeSpecification.applicability["@maxOccurs"];
+        
+        if (minOccurs === 1 && maxOccurs === "unbounded") return 'required';
+        if (minOccurs === 0 && maxOccurs === "unbounded") return 'optional';
+        if (minOccurs === 0 && maxOccurs === 0) return 'prohibited';
+        return 'required';
+    };
+
+    const setUsage = (usage) => {
+        if (!activeSpecification) return;
+        if (!activeSpecification.applicability) activeSpecification.applicability = {};
+        
+        switch (usage) {
+            case 'required':
+                activeSpecification.applicability["@minOccurs"] = 1;
+                activeSpecification.applicability["@maxOccurs"] = "unbounded";
+                break;
+            case 'optional':
+                activeSpecification.applicability["@minOccurs"] = 0;
+                activeSpecification.applicability["@maxOccurs"] = "unbounded";
+                break;
+            case 'prohibited':
+                activeSpecification.applicability["@minOccurs"] = 0;
+                activeSpecification.applicability["@maxOccurs"] = 0;
+                break;
+        }
+    };
 </script>
 
 <div class="spec-info">
@@ -38,9 +69,8 @@
             <input class="form-input" id="spec-identifier" type="text" bind:value={() => getProp("@identifier"), (v) => setProp("@identifier", v)} placeholder="Enter identifier">
         </div>
         <div class="form-group">
-            <!-- TODO: Usage should set @minOccurs and @maxOccurs, fix this -->
             <label for="spec-cardinality">Usage</label>
-            <select class="form-input" id="spec-cardinality">
+            <select class="form-input" id="spec-cardinality" value={getUsage()} onchange={(e) => setUsage(e.target.value)}>
                 <option value="required">Required</option>
                 <option value="optional">Optional</option>
                 <option value="prohibited">Prohibited</option>
