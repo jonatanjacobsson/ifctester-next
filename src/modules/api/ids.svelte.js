@@ -94,7 +94,7 @@ export async function openDocument() {
                         const docId = id();
 
                         // Add document to list and set as active
-                        Module.documents[docId] = convertedDoc;
+                        Module.documents[docId] = doc;
                         Module.activeDocument = {
                             id: docId,
                             specification: null
