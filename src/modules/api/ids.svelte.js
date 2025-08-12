@@ -37,6 +37,41 @@ export async function deleteDocument(id) {
     }
 }
 
+// Normalize (remove xs: prefix) from JSON dict returned from Python
+// We need this because the backend exports with xs: prefix, yet expects a dict without prefixes.
+function normalizeIdsDict(obj) {
+    if (typeof obj !== 'object' || obj === null) return obj;
+    
+    if (Array.isArray(obj)) {
+        return obj.map(normalizeIdsDict);
+    }
+    
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+        if (key === 'xs:restriction' && Array.isArray(value) && value.length > 0) {
+            // Convert xs:restriction array to restriction object
+            const restriction = value[0];
+            const newRestriction = {};
+            
+            for (const [restrictionKey, restrictionValue] of Object.entries(restriction)) {
+                if (restrictionKey.startsWith('xs:')) {
+                    // Remove xs: prefix from keys
+                    const newKey = restrictionKey.replace('xs:', '');
+                    newRestriction[newKey] = restrictionValue;
+                } else {
+                    newRestriction[restrictionKey] = restrictionValue;
+                }
+            }
+            
+            result['restriction'] = newRestriction;
+        } else {
+            result[key] = normalizeIdsDict(value);
+        }
+    }
+    
+    return result;
+}
+
 export async function openDocument() {
     return new Promise((resolve, reject) => {
         const fileInput = document.createElement('input');
@@ -55,11 +90,11 @@ export async function openDocument() {
                 reader.onload = async (e) => {
                     try {
                         const fileContent = e.target.result;
-                        const doc = await wasm.openIDS(fileContent, false);
+                        const doc = normalizeIdsDict(await wasm.openIDS(fileContent, false));
                         const docId = id();
 
                         // Add document to list and set as active
-                        Module.documents[docId] = doc;
+                        Module.documents[docId] = convertedDoc;
                         Module.activeDocument = {
                             id: docId,
                             specification: null

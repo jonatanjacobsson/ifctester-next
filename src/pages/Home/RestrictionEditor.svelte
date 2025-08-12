@@ -365,10 +365,6 @@
         margin: 0;
     }
 
-    .range-group .form-input {
-        width: 100px;
-    }
-
     .length-range-controls {
         display: flex;
         gap: 20px;
@@ -380,14 +376,9 @@
         flex-direction: column;
         gap: 4px;
     }
-
     .length-group label {
         font-size: 12px;
         color: #666;
         margin: 0;
-    }
-
-    .length-group .form-input {
-        width: 120px;
     }
 </style>

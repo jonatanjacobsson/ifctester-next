@@ -143,14 +143,10 @@ def get_standard_classification_systems():
     }
 
 def ids_from_xml_string(xml: str, validate: bool = False) -> Ids:
-    tree = ET.ElementTree(ET.fromstring(xml))
     try:
-        if validate:
-            get_schema().validate(tree)
         decode = get_schema().decode(
-            tree, strip_namespaces=True, namespaces={
-                "": "http://standards.buildingsmart.org/IDS",
-                "xs": "http://www.w3.org/2001/XMLSchema"
+            xml, strip_namespaces=True, namespaces={
+                "": "http://standards.buildingsmart.org/IDS"
             }
         )
     except XMLSchemaValidationError as e:
