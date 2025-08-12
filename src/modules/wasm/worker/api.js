@@ -23,6 +23,15 @@ export async function getPredefinedTypes(schema, entity) {
     return result.toJs({ dict_converter: Object.fromEntries });
 }
 
+export async function getAllEntityClasses(schema) {
+    const result = await pyodide.runPythonAsync(`
+        from api import get_all_entity_classes
+        entities = get_all_entity_classes("${schema}")
+        entities
+    `);
+    return result.toJs({ dict_converter: Object.fromEntries });
+}
+
 export async function getEntityAttributes(schema, entity) {
     const result = await pyodide.runPythonAsync(`
         from api import get_entity_attributes
@@ -92,6 +101,7 @@ export async function auditIfc(ifcData, idsData, ifcId, idsId) {
 // Expose interface
 export const API = {
     "getPredefinedTypes": getPredefinedTypes,
+    "getAllEntityClasses": getAllEntityClasses,
     "getEntityAttributes": getEntityAttributes,
     "getApplicablePsets": getApplicablePsets,
     "getMaterialCategories": getMaterialCategories,

@@ -1,5 +1,234 @@
 <script>
-    let { facet = $bindable(), fieldName, label, placeholder } = $props();
+    import Svelecte from 'svelecte';
+    import { getEntityClasses, getMaterialCategories, getClassificationSystems, getPredefinedTypes, getEntityAttributes, getApplicablePsets } from '$src/modules/api/api.svelte.js';
+    import * as IDS from '$src/modules/api/ids.svelte.js';
+    
+    let { facet = $bindable(), fieldName, label, placeholder, autocomplete = null } = $props();
+    
+    const isEntityNameField = autocomplete === 'entityName';
+    const isMaterialField = autocomplete === 'material';
+    const isClassificationSystemField = autocomplete === 'classificationSystem';
+    const isPredefinedTypeField = autocomplete === 'predefinedType';
+    const isAttributeNameField = autocomplete === 'attributeName';
+    const isPropertySetField = autocomplete === 'propertySet';
+    
+    // Predefined Types autocompletions
+    let predefinedTypeOptions = $state([]);
+    
+    // Attribute Names autocompletions
+    let attributeNameOptions = $state([]);
+    
+    // Property Sets autocompletions
+    let propertySetOptions = $state([]);
+    
+    // Get the active specification's IFC schemas
+    const getIfcVersions = () => {
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
+        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        
+        const versions = activeSpecification?.["@ifcVersion"] || ['IFC4'];
+        // TODO: Fix: Filter out IFC4X3 because it's buggy
+        return versions.filter(version => version !== 'IFC4X3');
+    };
+    
+    // Get the entity name from facet
+    const getEntityName = () => {
+        const nameField = facet?.name;
+        if (!nameField) return '';
+        if (nameField.simpleValue) return nameField.simpleValue;
+        return '';
+    };
+    
+    // Get all entity names from Entity facets in Applicability
+    const getApplicabilityEntityNames = () => {
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
+        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        
+        if (!activeSpecification?.applicability?.entity) return [];
+        
+        const entityFacets = activeSpecification.applicability.entity;
+        const entityNames = [];
+        
+        entityFacets.forEach(entityFacet => {
+            const nameField = entityFacet.name;
+            if (!nameField) return;
+            
+            if (nameField.simpleValue) {
+                entityNames.push(nameField.simpleValue);
+            } else if (nameField.restriction?.enumeration) {
+                nameField.restriction.enumeration.forEach(enumItem => {
+                    if (enumItem['@value']) {
+                        entityNames.push(enumItem['@value']);
+                    }
+                });
+            }
+        });
+        
+        return [...new Set(entityNames)]; // Deduplicate
+    };
+    
+    // Get entity facets with their predefined types
+    const getApplicabilityEntityFacets = () => {
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
+        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        
+        if (!activeSpecification?.applicability?.entity) return [];
+        
+        return activeSpecification.applicability.entity.map(entityFacet => {
+            const nameField = entityFacet.name;
+            const predefinedTypeField = entityFacet.predefinedType;
+            
+            // Extract entity name
+            let entityNames = [];
+            if (nameField?.simpleValue) {
+                entityNames = [nameField.simpleValue];
+            } else if (nameField?.restriction?.enumeration) {
+                entityNames = nameField.restriction.enumeration
+                    .map(item => item['@value'])
+                    .filter(Boolean);
+            }
+            
+            // Extract predefined type
+            let predefinedType = '';
+            if (predefinedTypeField?.simpleValue) {
+                predefinedType = predefinedTypeField.simpleValue;
+            } else if (predefinedTypeField?.restriction?.enumeration?.length > 0) {
+                // For enumeration predefined types, use the first one or empty string
+                predefinedType = predefinedTypeField.restriction.enumeration[0]['@value'] || '';
+            }
+            
+            return { entityNames, predefinedType };
+        }).filter(facet => facet.entityNames.length > 0);
+    };
+    
+    // Contextual autocompletions
+    $effect(async () => {
+
+        // Predefined Types
+        if (isPredefinedTypeField) {
+            const entityName = getEntityName();
+            const ifcVersions = getIfcVersions();
+            
+            if (entityName && entityName.trim() !== '' && ifcVersions.length > 0) {
+                try {
+                    // Fetch predefined types for all selected schemas
+                    const typePromises = ifcVersions.map(schema => 
+                        getPredefinedTypes(schema, entityName.toUpperCase())
+                    );
+                    const typeSets = await Promise.all(typePromises);
+                    
+                    // Deduplicate predefined types across all schemas
+                    const allTypes = new Set();
+                    typeSets.forEach(types => {
+                        if (types && Array.isArray(types)) {
+                            types.forEach(type => allTypes.add(type));
+                        }
+                    });
+                    
+                    predefinedTypeOptions = Array.from(allTypes).sort();
+                } catch (error) {
+                    console.error('Failed to fetch predefined types:', error);
+                    predefinedTypeOptions = [];
+                }
+            } else {
+                predefinedTypeOptions = [];
+            }
+        }
+        
+        // Attribute Names
+        if (isAttributeNameField) {
+            const entityNames = getApplicabilityEntityNames();
+            const ifcVersions = getIfcVersions();
+            
+            if (entityNames.length > 0 && ifcVersions.length > 0) {
+                try {
+                    // Fetch attributes for all entity names across all selected schemas
+                    const attributePromises = [];
+                    entityNames.forEach(entityName => {
+                        ifcVersions.forEach(schema => {
+                            attributePromises.push(
+                                getEntityAttributes(schema, entityName.toUpperCase())
+                            );
+                        });
+                    });
+                    
+                    const attributeSets = await Promise.all(attributePromises);
+                    
+                    // Deduplicate attribute names across all entities and schemas
+                    const allAttributes = new Set();
+                    attributeSets.forEach(attributes => {
+                        if (attributes && Array.isArray(attributes)) {
+                            attributes.forEach(attr => {
+                                if (attr.name) {
+                                    allAttributes.add(attr.name);
+                                }
+                            });
+                        }
+                    });
+                    
+                    attributeNameOptions = Array.from(allAttributes).sort();
+                } catch (error) {
+                    console.error('Failed to fetch attribute names:', error);
+                    attributeNameOptions = [];
+                }
+            } else {
+                attributeNameOptions = [];
+            }
+        }
+        
+        // Property Sets
+        if (isPropertySetField) {
+            const entityFacets = getApplicabilityEntityFacets();
+            const ifcVersions = ['IFC4']; // TODO: Fix this. Even IFC2X3 doesn't work and throws an error.
+            
+            if (entityFacets.length > 0 && ifcVersions.length > 0) {
+                try {
+                    // Fetch applicable property sets for all entity facets across all selected schemas
+                    const psetPromises = [];
+                    entityFacets.forEach(facet => {
+                        facet.entityNames.forEach(entityName => {
+                            ifcVersions.forEach(schema => {
+                                psetPromises.push(
+                                    getApplicablePsets(schema, entityName.toUpperCase(), facet.predefinedType)
+                                );
+                            });
+                        });
+                    });
+                    
+                    const psetSets = await Promise.all(psetPromises);
+                    
+                    // Deduplicate property set names
+                    const allPsets = new Set();
+                    psetSets.forEach(psets => {
+                        if (psets && Array.isArray(psets)) {
+                            psets.forEach(pset => allPsets.add(pset));
+                        }
+                    });
+                    
+                    propertySetOptions = Array.from(allPsets).sort();
+                } catch (error) {
+                    console.error('Failed to fetch property sets:', error);
+                    propertySetOptions = [];
+                }
+            } else {
+                propertySetOptions = [];
+            }
+        }
+    });
+    
+    // Get autocomplete options based on field type
+    const getAutocompleteOptions = () => {
+        if (isEntityNameField) return getEntityClasses();
+        if (isMaterialField) return getMaterialCategories();
+        if (isClassificationSystemField) return Object.keys(getClassificationSystems());
+        if (isPredefinedTypeField) return predefinedTypeOptions;
+        if (isAttributeNameField) return attributeNameOptions;
+        if (isPropertySetField) return propertySetOptions;
+        return [];
+    };
     
     const getRestrictionType = () => {
         const fieldValue = facet[fieldName];
@@ -101,7 +330,7 @@
 
     const setEnumerationValues = (values) => {
         if (!facet[fieldName]) facet[fieldName] = {};
-        const enumItems = values.filter(v => v.trim() !== '').map(v => ({ '@value': v }));
+        const enumItems = values.filter(v => v && typeof v === 'string' && v.trim() !== '').map(v => ({ '@value': v }));
         facet[fieldName] = {
             'restriction': {
                 '@base': 'xs:string',
@@ -220,13 +449,39 @@
         
         <div class="restriction-content">
             {#if restrictionType === 'Simple'}
-                <input class="form-input" type="text" bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} {placeholder}>
+                {#if autocomplete}
+                    <Svelecte 
+                        class="form-ac-input" 
+                        options={getAutocompleteOptions()} 
+                        allowEditing={true} 
+                        creatable={true} 
+                        creatablePrefix="" 
+                        resetOnBlur={false} 
+                        bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} 
+                        {placeholder} 
+                    />
+                {:else}
+                    <input class="form-input" type="text" bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} {placeholder}>
+                {/if}
             
             {:else if restrictionType === 'Enumeration'}
                 <div class="enumeration-list">
                     {#each enumerationValues as value, index}
                         <div class="enumeration-item">
-                            <input class="form-input" type="text" value={value} oninput={(e) => updateEnumerationValue(index, e.target.value)} {placeholder}>
+                            {#if autocomplete}
+                                <Svelecte 
+                                    class="form-ac-input" 
+                                    options={getAutocompleteOptions()} 
+                                    allowEditing={true} 
+                                    creatable={true} 
+                                    creatablePrefix="" 
+                                    resetOnBlur={false} 
+                                    bind:value={() => value, (v) => updateEnumerationValue(index, v)} 
+                                    {placeholder} 
+                                />
+                            {:else}
+                                <input class="form-input" type="text" value={value} oninput={(e) => updateEnumerationValue(index, e.target.value)} {placeholder}>
+                            {/if}
                             <button class="btn-delete" onclick={() => removeEnumerationValue(index)} type="button" aria-label="Remove enumeration value">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 6L6 18M6 6l12 12"></path>
@@ -311,7 +566,8 @@
         align-items: center;
     }
 
-    .enumeration-item .form-input {
+    .enumeration-item .form-input,
+    .enumeration-item :global(.form-ac-input) {
         flex: 1;
     }
 

@@ -28,13 +28,13 @@
     </div>
     <div class="restriction-form">
         {#if facetType === 'entity'}
-            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcWall" />
-            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" />
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcWall" autocomplete="entityName" />
+            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" autocomplete="predefinedType" />
         {:else if facetType === 'attribute'}
-            <RestrictionEditor bind:facet={facet} fieldName="name" label="Attribute Name" placeholder="e.g., Name" />
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Attribute Name" placeholder="e.g., Name" autocomplete="attributeName" />
             <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="Optional value" />
         {:else if facetType === 'property'}
-            <RestrictionEditor bind:facet={facet} fieldName="propertySet" label="Property Set" placeholder="e.g., Pset_WallCommon" />
+            <RestrictionEditor bind:facet={facet} fieldName="propertySet" label="Property Set" placeholder="e.g., Pset_WallCommon" autocomplete="propertySet" />
             <RestrictionEditor bind:facet={facet} fieldName="baseName" label="Base Name" placeholder="e.g., FireRating" />
             <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="Optional value" />
             <div class="form-group">
@@ -42,13 +42,13 @@
                 <input class="form-input" type="text" bind:value={() => getSpecialProp('@dataType'), (v) => setSpecialProp('@dataType', v)} placeholder="Optional data type">
             </div>
         {:else if facetType === 'material'}
-            <RestrictionEditor bind:facet={facet} fieldName="value" label="Material Value" placeholder="e.g., Concrete" />
+            <RestrictionEditor bind:facet={facet} fieldName="value" label="Material Value" placeholder="e.g., Concrete" autocomplete="material" />
         {:else if facetType === 'classification'}
-            <RestrictionEditor bind:facet={facet} fieldName="system" label="System" placeholder="e.g., Uniclass 2015" />
+            <RestrictionEditor bind:facet={facet} fieldName="system" label="System" placeholder="e.g., Uniclass 2015" autocomplete="classificationSystem" />
             <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="e.g., EF_25_10_25" />
         {:else if facetType === 'partOf'}
-            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcSpace" />
-            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" />
+            <RestrictionEditor bind:facet={facet} fieldName="name" label="Entity Name" placeholder="e.g., IfcSpace" autocomplete="entityName" />
+            <RestrictionEditor bind:facet={facet} fieldName="predefinedType" label="Predefined Type" placeholder="e.g., SOLIDWALL" autocomplete="predefinedType" />
             <div class="form-group">
                 <label>Relation</label>
                 <select class="form-input" bind:value={() => getSpecialProp("@relation"), (v) => setSpecialProp("@relation", v)}>

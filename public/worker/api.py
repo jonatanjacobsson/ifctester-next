@@ -7,13 +7,17 @@ from xmlschema.validators.exceptions import XMLSchemaValidationError
 from ifctester.ids import Ids, IdsXmlValidationError, get_schema
 
 # https://github.com/buildingSMART/IDS/blob/9914d568c7ac037acd97e58a0d16e9f93c3e3416/Schema/ids.xsd#L232
-ifc_schemas = ["IFC2X3", "IFC4", "IFC4X3_ADD2"]
+ifc_schemas = ["IFC2X3", "IFC4", "IFC4X3"]
 
 def get_predefined_types_for_entity(schema_name, entity_name):
     """Get a list of predefined types for a given entity."""
 
     schema = ifcopenshell.schema_by_name(schema_name)
-    entity = schema.declaration_by_name(entity_name)
+
+    try:
+        entity = schema.declaration_by_name(entity_name)
+    except:
+        return []
     
     if not entity or not entity.as_entity():
         print(f"Entity {entity_name} not found")
@@ -40,15 +44,32 @@ def get_predefined_types_for_entity(schema_name, entity_name):
     
     return []
 
+def get_all_entity_classes(schema_name):
+    """Get all IFC entity classes in the given schema."""
+    
+    schema = ifcopenshell.schema_by_name(schema_name)
+    entities = []
+    
+    for entity in schema.entities():
+        entities.append(entity.name())
+    
+    # Sort alphabetically
+    entities.sort()
+    return entities
+
 def get_entity_attributes(schema_name, entity_name):
     """Get all attributes for a given entity."""
 
     schema = ifcopenshell.schema_by_name(schema_name)
-    entity = schema.declaration_by_name(entity_name)
+
+    try:
+        entity = schema.declaration_by_name(entity_name)
+    except:
+        return []
     
     if not entity or not entity.as_entity():
         print(f"Entity {entity_name} not found")
-        return None
+        return []
     
     entity = entity.as_entity()
     attributes = []
@@ -84,7 +105,7 @@ def get_all_psets(schema_name):
                 for prop_template in pset_template.HasPropertyTemplates:
                     prop_info = {
                         "name": prop_template.Name,
-                        # "description": prop_template.Description # TODO: Use descriptions?
+                        # "description": prop_template.Description
                     }
                     
                     # Extract type information

@@ -19,7 +19,6 @@
         <div class="form-group">
             <label>Title</label>
             <input class="form-input" type="text" bind:value={() => getProp("title"), (v) => setProp("title", v)} placeholder="Enter IDS title">
-            <!-- <Svelecte class="form-ac-input" options={["Item 1", "Dinosaur 2", "Superhero 3"]} allowEditing={true} creatable={true} creatablePrefix="" resetOnBlur={false} bind:value={() => getProp("title"), (v) => setProp("title", v)} placeholder="Enter IDS title" /> -->
         </div>
         <div class="form-group">
             <label>Author</label>

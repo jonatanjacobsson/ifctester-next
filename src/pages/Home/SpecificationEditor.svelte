@@ -88,8 +88,8 @@
                     IFC4
                 </label>
                 <label class="radio-label">
-                    <input type="checkbox" value="IFC4X3_ADD2" checked={activeSpecification?.["@ifcVersion"]?.includes('IFC4X3_ADD2')} onchange={(e) => addIfcVersion(e, 'IFC4X3_ADD2')}>
-                    IFC4X3_ADD2
+                    <input type="checkbox" value="IFC4X3" checked={activeSpecification?.["@ifcVersion"]?.includes('IFC4X3')} onchange={(e) => addIfcVersion(e, 'IFC4X3')}>
+                    IFC4X3
                 </label>
             </div>
         </div>

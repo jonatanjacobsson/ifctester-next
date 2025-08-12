@@ -37,7 +37,7 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.551 0.027 264.364);
 
-    --sv-bg: #292929;
+    --sv-bg: #3c3c3c;
     --sv-border: none;
     --sv-selection-gap: 10px 14px;
     --sv-min-height: 46px;
@@ -581,6 +581,10 @@ html, body {
 
             .sv-control input::placeholder {
                 color: #888888;
+            }
+
+            .sv-control .is-single {
+                max-height: 24px;
             }
         }
     }

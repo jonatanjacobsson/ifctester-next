@@ -121,6 +121,13 @@ class WASMModule extends EventEmitter {
     }
 
     /**
+     * Get all entity classes in a given IFC schema
+     */
+    async getAllEntityClasses(schema) {
+        return this._apiCall('getAllEntityClasses', schema);
+    }
+
+    /**
      * Get predefined types for a given IFC entity
      */
     async getPredefinedTypes(schema, entity) {
@@ -268,6 +275,7 @@ const wasm = new WASMModule();
 
 export const {
     init,
+    getAllEntityClasses,
     getPredefinedTypes,
     getEntityAttributes,
     getApplicablePsets,
