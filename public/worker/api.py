@@ -7,7 +7,7 @@ from xmlschema.validators.exceptions import XMLSchemaValidationError
 from ifctester.ids import Ids, IdsXmlValidationError, get_schema
 
 # https://github.com/buildingSMART/IDS/blob/9914d568c7ac037acd97e58a0d16e9f93c3e3416/Schema/ids.xsd#L232
-ifc_schemas = ["IFC2X3", "IFC4", "IFC4X3"]
+ifc_schemas = ["IFC2X3", "IFC4", "IFC4X3_ADD2"]
 
 def get_predefined_types_for_entity(schema_name, entity_name):
     """Get a list of predefined types for a given entity."""

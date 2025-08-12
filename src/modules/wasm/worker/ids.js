@@ -65,7 +65,7 @@ export function exportIDS(idsObj) {
     return ids_raw.to_string();
 }
 
-export function createSpecification({name = "Unnamed", ifcVersion = ["IFC2X3", "IFC4", "IFC4X3"], identifier = null, description = null, instructions = null, usage = "required"}) {
+export function createSpecification({name = "Unnamed", ifcVersion = ["IFC2X3", "IFC4"], identifier = null, description = null, instructions = null, usage = "required"}) {
     const spec = Specification.callKwargs({
         name: name,
         ifcVersion: ifcVersion,

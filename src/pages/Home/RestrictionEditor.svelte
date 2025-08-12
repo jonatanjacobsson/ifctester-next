@@ -29,7 +29,7 @@
         
         const versions = activeSpecification?.["@ifcVersion"] || ['IFC4'];
         // TODO: Fix: Filter out IFC4X3 because it's buggy
-        return versions.filter(version => version !== 'IFC4X3');
+        return versions.filter(version => version !== 'IFC4X3_ADD2');
     };
     
     // Get the entity name from facet
