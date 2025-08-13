@@ -121,6 +121,15 @@ export async function openDocument() {
     });
 }
 
+export async function exportActiveDocument() {
+    if (!Module.activeDocument || !Module.activeDocument.id) return null;
+
+    const doc = $state.snapshot(Module.documents[Module.activeDocument.id]);
+    const xmlString = await wasm.exportIDS(doc);
+
+    return xmlString;
+}
+
 export async function exportDocument(docId) {
     const doc = $state.snapshot(Module.documents[docId]);
 

@@ -1,6 +1,10 @@
 import config from '../../../config.json';
+import hyperid from 'hyperid';
 
 let pyodide = null;
+let id = hyperid();
+
+let LoadedIFC = new Map();
 
 export async function init(pdide) {
     pyodide = pdide;
@@ -68,34 +72,46 @@ export async function getStandardClassificationSystems() {
     return result.toJs({ dict_converter: Object.fromEntries });
 }
 
-export async function auditIfc(ifcData, idsData, ifcId, idsId) {
-    // Write files to Pyodide filesystem
-    const ifcPath = `/tmp/${ifcId}.ifc`;
-    const idsPath = `/tmp/${idsId}.ids`;
-    
-    pyodide.FS.writeFile(ifcPath, new Uint8Array(ifcData));
-    pyodide.FS.writeFile(idsPath, new Uint8Array(idsData));
+export async function loadIfc(ifcData) {
+    const ifc_id = id();
+    const path = `/tmp/${encodeURIComponent(ifc_id)}.ifc`;
 
-    const result = await pyodide.runPythonAsync(`
+    pyodide.FS.writeFile(path, new Uint8Array(ifcData));
+    const ifc = await pyodide.runPythonAsync(`
         import ifcopenshell
-        import ifctester
-        import ifctester.reporter
-        import os
 
-        specs = ifctester.open("${idsPath}")
-        ifc = ifcopenshell.open("${ifcPath}")
-
-        specs.validate(ifc)
-        os.remove("${ifcPath}")
-        os.remove("${idsPath}")
-
-        engine = ifctester.reporter.Json(specs)
-        engine.report()
-        report = engine.to_string()
-        report
+        ifc = ifcopenshell.open("${path}")
+        ifc
     `);
 
-    return JSON.parse(result);
+    LoadedIFC.set(ifc_id, ifc);
+    return ifc_id;
+}
+
+export async function unloadIfc(ifcId) {
+    const path = `/tmp/${encodeURIComponent(ifcId)}.ifc`;
+
+    pyodide.FS.unlink(path);
+    LoadedIFC.delete(ifcId);
+}
+
+export async function auditIfc(ifcId, idsData) {
+    const reporter = pyodide.pyimport("ifctester.reporter");
+    const api = pyodide.pyimport("api");
+
+    const idsString = new TextDecoder().decode(new Uint8Array(idsData));
+    const specs = api.ids_from_xml_string(idsString, true);
+    const ifc = LoadedIFC.get(ifcId);
+
+    // Run audit
+    specs.validate(ifc);
+
+    // Create report
+    let engine = reporter.Json(specs);
+    engine.report();
+    const report = engine.to_string();
+    
+    return JSON.parse(report);
 }
 
 // Expose interface
@@ -106,5 +122,7 @@ export const API = {
     "getApplicablePsets": getApplicablePsets,
     "getMaterialCategories": getMaterialCategories,
     "getStandardClassificationSystems": getStandardClassificationSystems,
+    "loadIfc": loadIfc,
+    "unloadIfc": unloadIfc,
     "auditIfc": auditIfc
 };

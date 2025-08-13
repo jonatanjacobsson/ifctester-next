@@ -163,13 +163,26 @@ class WASMModule extends EventEmitter {
     }
 
     /**
-     * Audit an IFC file against IDS specifications\
+     * Load an IFC file. Returns a unique ID for the loaded file.
      */
-    async auditIfc(ifcData, idsData, ifcId, idsId) {
-        const ifcBytes = ifcData instanceof ArrayBuffer ? new Uint8Array(ifcData) : ifcData;
+    async loadIfc(ifcData) {
+        return this._apiCall('loadIfc', ifcData);
+    }
+
+    /**
+     * Unload an IFC file
+     */
+    async unloadIfc(ifcId) {
+        return this._apiCall('unloadIfc', ifcId);
+    }
+
+    /**
+     * Audit a loaded IFC file against IDS specifications
+     */
+    async auditIfc(ifcId, idsData) {
         const idsBytes = idsData instanceof ArrayBuffer ? new Uint8Array(idsData) : idsData;
 
-        return this._apiCall('auditIfc', Array.from(ifcBytes), Array.from(idsBytes), ifcId, idsId);
+        return this._apiCall('auditIfc', ifcId, Array.from(idsBytes));
     }
 
     // IDS API Methods
@@ -281,6 +294,8 @@ export const {
     getApplicablePsets,
     getMaterialCategories,
     getStandardClassificationSystems,
+    loadIfc,
+    unloadIfc,
     auditIfc,
     createIDS,
     openIDS,
