@@ -4,6 +4,7 @@ export let Autocompletions = $state({
     entityClasses: [],
     materialCategories: [],
     classificationSystems: {},
+    dataTypes: [],
     isLoaded: false
 });
 
@@ -20,24 +21,36 @@ wasm.init().then(async () => {
 export async function preloadAutocompletions() {
     try {
         const schemas = ["IFC2X3", "IFC4"]; // TODO: IFC4X3 is excluded for now because of an error
+        
+        // Entity classes
         const entitySets = await Promise.all(
             schemas.map(schema => wasm.getAllEntityClasses(schema))
         );
-        
-        // Deduplicate entity classes across all schemas
         const allEntities = new Set();
         entitySets.forEach(entities => {
             entities.forEach(entity => allEntities.add(entity));
         });
         
+        // Data types
+        const dataTypeSets = await Promise.all(
+            schemas.map(schema => wasm.getAllDataTypes(schema))
+        );
+        const allDataTypes = new Set();
+        dataTypeSets.forEach(dataTypes => {
+            Object.keys(dataTypes).forEach(dataType => allDataTypes.add(dataType));
+        });
+        
+        // Material categories and Classification systems
         const [materialCategories, classificationSystems] = await Promise.all([
             wasm.getMaterialCategories(),
             wasm.getStandardClassificationSystems()
         ]);
         
+        // Cache autocompletions
         Autocompletions.entityClasses = Array.from(allEntities).sort();
         Autocompletions.materialCategories = materialCategories;
         Autocompletions.classificationSystems = classificationSystems;
+        Autocompletions.dataTypes = Array.from(allDataTypes).sort();
         Autocompletions.isLoaded = true;
         
         console.log('Autocompletions preloaded');
@@ -68,6 +81,10 @@ export function getMaterialCategories() {
 
 export function getClassificationSystems() {
     return Autocompletions.classificationSystems;
+}
+
+export function getDataTypes() {
+    return Autocompletions.dataTypes;
 }
 
 export async function loadIfcModel(file) {

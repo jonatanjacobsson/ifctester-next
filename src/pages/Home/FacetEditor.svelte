@@ -37,10 +37,7 @@
             <RestrictionEditor bind:facet={facet} fieldName="propertySet" label="Property Set" placeholder="e.g., Pset_WallCommon" autocomplete="propertySet" />
             <RestrictionEditor bind:facet={facet} fieldName="baseName" label="Base Name" placeholder="e.g., FireRating" />
             <RestrictionEditor bind:facet={facet} fieldName="value" label="Value" placeholder="Optional value" />
-            <div class="form-group">
-                <label>Data Type</label>
-                <input class="form-input" type="text" bind:value={() => getSpecialProp('@dataType'), (v) => setSpecialProp('@dataType', v)} placeholder="Optional data type">
-            </div>
+            <RestrictionEditor bind:facet={facet} fieldName="@dataType" label="Data Type" placeholder="Optional data type" autocomplete="dataType" isSpecialProp={true} />
         {:else if facetType === 'material'}
             <RestrictionEditor bind:facet={facet} fieldName="value" label="Material Value" placeholder="e.g., Concrete" autocomplete="material" />
         {:else if facetType === 'classification'}

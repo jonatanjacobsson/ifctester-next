@@ -57,6 +57,12 @@ def get_all_entity_classes(schema_name):
     entities.sort()
     return entities
 
+def get_all_data_types(schema_name):
+    """Get all data types in the given schema."""
+
+    schema = ifcopenshell.schema_by_name(schema_name)
+    return {d.name(): ifcopenshell.util.attribute.get_primitive_type(d) for d in schema.declarations() if d.as_type_declaration()}
+
 def get_entity_attributes(schema_name, entity_name):
     """Get all attributes for a given entity."""
 

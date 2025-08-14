@@ -1,9 +1,9 @@
 <script>
     import Svelecte from 'svelecte';
-    import { getEntityClasses, getMaterialCategories, getClassificationSystems, getPredefinedTypes, getEntityAttributes, getApplicablePsets } from '$src/modules/api/api.svelte.js';
+    import { getEntityClasses, getMaterialCategories, getClassificationSystems, getDataTypes, getPredefinedTypes, getEntityAttributes, getApplicablePsets } from '$src/modules/api/api.svelte.js';
     import * as IDS from '$src/modules/api/ids.svelte.js';
     
-    let { facet = $bindable(), fieldName, label, placeholder, autocomplete = null } = $props();
+    let { facet = $bindable(), fieldName, label, placeholder, autocomplete = null, isSpecialProp = false } = $props();
     
     const isEntityNameField = autocomplete === 'entityName';
     const isMaterialField = autocomplete === 'material';
@@ -11,6 +11,7 @@
     const isPredefinedTypeField = autocomplete === 'predefinedType';
     const isAttributeNameField = autocomplete === 'attributeName';
     const isPropertySetField = autocomplete === 'propertySet';
+    const isDataTypeField = autocomplete === 'dataType';
     
     // Predefined Types autocompletions
     let predefinedTypeOptions = $state([]);
@@ -227,6 +228,7 @@
         if (isPredefinedTypeField) return predefinedTypeOptions;
         if (isAttributeNameField) return attributeNameOptions;
         if (isPropertySetField) return propertySetOptions;
+        if (isDataTypeField) return getDataTypes();
         return [];
     };
     
@@ -245,12 +247,16 @@
         }
         return 'Simple';
     };
-
+    
     const getSimpleValue = () => {
         const fieldValue = facet[fieldName];
-        if (!fieldValue) return '';
+
+        // For special properties (eg. @dataType), we return the value directly
+        if (isSpecialProp) return fieldValue || null;
+
+        if (!fieldValue) return null;
         if (fieldValue.simpleValue !== undefined) return fieldValue.simpleValue;
-        return '';
+        return null;
     };
 
     const getEnumerationValues = () => {
@@ -324,6 +330,13 @@
     };
 
     const setSimpleValue = (value) => {
+        console.log('setSimpleValue', value);
+
+        // For special properties (eg. @dataType), we set the value directly
+        if (isSpecialProp) {
+            facet[fieldName] = value;
+            return;
+        }
         if (!facet[fieldName]) facet[fieldName] = {};
         facet[fieldName] = { simpleValue: value };
     };
@@ -436,16 +449,18 @@
 <div class="form-group">
     <label>{label}</label>
     <div class="restriction-controls">
-        <div class="restriction-type-selector">
-            <select class="form-input" bind:value={restrictionType} onchange={(e) => handleTypeChange(e.target.value)}>
-                <option value="Simple">Simple</option>
-                <option value="Enumeration">Enumeration</option>
-                <option value="Pattern">Pattern</option>
-                <option value="Range">Range</option>
-                <option value="Length">Length</option>
-                <option value="Length Range">Length Range</option>
-            </select>
-        </div>
+        {#if !isSpecialProp}
+            <div class="restriction-type-selector">
+                <select class="form-input" bind:value={restrictionType} onchange={(e) => handleTypeChange(e.target.value)}>
+                    <option value="Simple">Simple</option>
+                    <option value="Enumeration">Enumeration</option>
+                    <option value="Pattern">Pattern</option>
+                    <option value="Range">Range</option>
+                    <option value="Length">Length</option>
+                    <option value="Length Range">Length Range</option>
+                </select>
+            </div>
+        {/if}
         
         <div class="restriction-content">
             {#if restrictionType === 'Simple'}
@@ -459,7 +474,7 @@
                         strictMode={false}
                         resetOnBlur={false} 
                         bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} 
-                        {placeholder} 
+                        placeholder={placeholder}
                     />
                 {:else}
                     <input class="form-input" type="text" bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} {placeholder}>
@@ -479,7 +494,7 @@
                                     strictMode={false}
                                     resetOnBlur={false} 
                                     bind:value={() => value, (v) => updateEnumerationValue(index, v)} 
-                                    {placeholder} 
+                                    placeholder={placeholder} 
                                 />
                             {:else}
                                 <input class="form-input" type="text" value={value} oninput={(e) => updateEnumerationValue(index, e.target.value)} {placeholder}>
