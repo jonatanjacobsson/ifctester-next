@@ -1,5 +1,4 @@
 <script>
-    import Svelecte from 'svelecte';
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null);

@@ -434,11 +434,6 @@ html, body {
             }
         }
 
-        .sidebar-actions {
-            padding: 16px;
-            border-top: 1px solid #ffffff1c;
-        }
-
         .specifications-list {
             flex: 1;
             overflow-y: auto;

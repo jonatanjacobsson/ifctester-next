@@ -85,9 +85,6 @@
                                 {/each}
                             {/if}
                         </div>
-                        <div class="sidebar-actions">
-                            <button class="btn full-width" onclick={exportIDS}>Export IDS</button>
-                        </div>
                     </div>
                 {/if}
                 <div class="main-panel" class:full-width={!IDS.Module.activeDocument}>

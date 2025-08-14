@@ -387,7 +387,7 @@
     
     .empty-state p:first-of-type {
         font-weight: 500;
-        color: #374151;
+        color: #667286;
     }
     
     .audit-results {

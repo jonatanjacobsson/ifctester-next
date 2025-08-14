@@ -456,6 +456,7 @@
                         allowEditing={true} 
                         creatable={true} 
                         creatablePrefix="" 
+                        strictMode={false}
                         resetOnBlur={false} 
                         bind:value={() => getSimpleValue(), (v) => setSimpleValue(v)} 
                         {placeholder} 
@@ -475,6 +476,7 @@
                                     allowEditing={true} 
                                     creatable={true} 
                                     creatablePrefix="" 
+                                    strictMode={false}
                                     resetOnBlur={false} 
                                     bind:value={() => value, (v) => updateEnumerationValue(index, v)} 
                                     {placeholder} 
