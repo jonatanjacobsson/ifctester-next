@@ -24,9 +24,10 @@
     
     // Get the active specification's IFC schemas
     const getIfcVersions = () => {
-        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
-        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
-            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null;
+        const documentState = IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null;
+        const activeSpecification = activeDocument && documentState?.activeSpecification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[documentState.activeSpecification] : null;
         
         const versions = activeSpecification?.["@ifcVersion"] || ['IFC4'];
         // TODO: Fix: Filter out IFC4X3 because it's buggy
@@ -43,9 +44,10 @@
     
     // Get all entity names from Entity facets in Applicability
     const getApplicabilityEntityNames = () => {
-        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
-        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
-            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null;
+        const documentState = IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null;
+        const activeSpecification = activeDocument && documentState?.activeSpecification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[documentState.activeSpecification] : null;
         
         if (!activeSpecification?.applicability?.entity) return [];
         
@@ -72,9 +74,10 @@
     
     // Get entity facets with their predefined types
     const getApplicabilityEntityFacets = () => {
-        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null;
-        const activeSpecification = activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
-            activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null;
+        const activeDocument = IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null;
+        const documentState = IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null;
+        const activeSpecification = activeDocument && documentState?.activeSpecification !== null && activeDocument.specifications?.specification ? 
+            activeDocument.specifications.specification[documentState.activeSpecification] : null;
         
         if (!activeSpecification?.applicability?.entity) return [];
         
@@ -330,8 +333,6 @@
     };
 
     const setSimpleValue = (value) => {
-        console.log('setSimpleValue', value);
-
         // For special properties (eg. @dataType), we set the value directly
         if (isSpecialProp) {
             facet[fieldName] = value;
@@ -398,8 +399,8 @@
         facet[fieldName] = { 'restriction': restriction };
     };
 
-    let restrictionType = $state(getRestrictionType());
-    let enumerationValues = $state(getEnumerationValues());
+    let restrictionType = $derived(getRestrictionType());
+    let enumerationValues = $derived(getEnumerationValues());
 
     const handleTypeChange = (newType) => {
         restrictionType = newType;
@@ -600,12 +601,14 @@
     }
 
     .btn-delete {
-        color: #dc3545;
-        border-color: #dc3545;
+        color: #b0b0b0;
+        border-color: #ffffff26;
+        border-radius: 50px;
+        padding: 5px;
     }
 
     .btn-delete:hover {
-        background: #dc3545;
+        background: #ffffff12;
         color: white;
     }
 

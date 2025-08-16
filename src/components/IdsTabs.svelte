@@ -2,10 +2,7 @@
     import * as IDS from "$src/modules/api/ids.svelte.js";
 
     function switchDocument(docId) {
-        IDS.Module.activeDocument = {
-            id: docId,
-            specification: null
-        };
+        IDS.Module.activeDocument = docId;
     }
     
     function closeDocument(docId) {
@@ -17,7 +14,7 @@
     {#each Object.entries(IDS.Module.documents) as [docId, doc]}
         <div 
             class="ids-tab" 
-            class:active={IDS.Module.activeDocument?.id === docId}
+            class:active={IDS.Module.activeDocument === docId}
             onclick={() => switchDocument(docId)}
             aria-label={doc.info.title || "Untitled"}
         >

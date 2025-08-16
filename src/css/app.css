@@ -4,20 +4,22 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+    color-scheme: dark;
+
     --radius: 0.625rem;
-    --background: oklch(0.13 0.028 261.692);
+    --background: oklch(0.27 0.00 0);
     --foreground: oklch(0.985 0.002 247.839);
     --card: oklch(0.21 0.034 264.665);
     --card-foreground: oklch(0.985 0.002 247.839);
-    --popover: oklch(0.21 0.034 264.665);
-    --popover-foreground: oklch(0.985 0.002 247.839);
+    --popover: oklch(0.27 0.00 0);
+    --popover-foreground: oklch(0.97 0.00 0);
     --primary: oklch(0.928 0.006 264.531);
     --primary-foreground: oklch(0.21 0.034 264.665);
-    --secondary: oklch(0.278 0.033 256.848);
+    --secondary: oklch(0.37 0.00 0);
     --secondary-foreground: oklch(0.985 0.002 247.839);
-    --muted: oklch(0.278 0.033 256.848);
+    --muted: oklch(0.37 0.00 0);
     --muted-foreground: oklch(0.707 0.022 261.325);
-    --accent: oklch(0.278 0.033 256.848);
+    --accent: oklch(0.37 0.00 0);
     --accent-foreground: oklch(0.985 0.002 247.839);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
@@ -32,12 +34,12 @@
     --sidebar-foreground: oklch(0.985 0.002 247.839);
     --sidebar-primary: oklch(0.488 0.243 264.376);
     --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-    --sidebar-accent: oklch(0.278 0.033 256.848);
+    --sidebar-accent: oklch(0.37 0.00 0);
     --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.551 0.027 264.364);
 
-    --sv-bg: #3c3c3c;
+    --sv-bg: #2e2e2e;
     --sv-border: none;
     --sv-selection-gap: 10px 14px;
     --sv-min-height: 46px;
@@ -307,6 +309,8 @@ html, body {
     transition: background-color 200ms;
     font-size: 0.9rem;
     box-shadow: 0px 1px 3px #00000070;
+    display: flex;
+    align-items: center;
 }
 .btn.full-width {
     width: 100%;
@@ -519,11 +523,19 @@ html, body {
         }
     }
     
+    .ids-md-header {
+        margin-bottom: 24px;
+    }
+    
     .ids-info h2, .specification-editor h2 {
-        margin: 0 0 24px 0;
+        margin: 0 0 0px 0;
         font-size: 24px;
-        font-weight: 600;
+        font-weight: 400;
         color: #e0e0e0;
+        flex: 1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
     
     .form-grid {
@@ -608,21 +620,34 @@ html, body {
     .spec-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         margin-bottom: 24px;
+        gap: 15px;
     }
     
     .spec-tabs {
-        display: flex;
-        gap: 8px;
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 6px;
+        border: 1px solid #ffffff1c;
     }
     
     .tab-btn {
         cursor: pointer;
+        background-color: transparent;
+        box-shadow: none;
+        font-weight: 500;
+        color: #b0b0b0;
+        font-size: 14px;
+        transition: all 200ms;
+        padding: 5px 10px;
     }
-    
+    .tab-btn:hover {
+        background: transparent;
+        color: white;
+    }
     .tab-btn.active {
-        background: #024828;
+        background: #ffffff21;
         color: white;
     }
     
@@ -635,6 +660,11 @@ html, body {
         align-items: center;
         justify-content: space-between;
         margin-bottom: 16px;
+
+        .btn {
+            background-color: transparent;
+            border: 1px solid #ffffff36;
+        }
     }
     
     .restrictions-header h3 {
@@ -672,9 +702,9 @@ html, body {
     }
     
     .restriction-item {
-        background: #2d2d2d;
-        border: 1px solid #555555;
-        border-radius: 8px;
+        background: #ffffff05;
+        border: 1px solid #5555556e;
+        border-radius: 12px;
         padding: 16px;
     }
     
@@ -683,22 +713,46 @@ html, body {
         align-items: center;
         justify-content: space-between;
         margin-bottom: 12px;
-    }
-    
-    .restriction-type {
-        background: #555555;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #e0e0e0;
-    }
-    
-    .restriction-name {
-        flex: 1;
-        margin-left: 12px;
-        font-weight: 500;
-        color: #e0e0e0;
+        gap: 12px;
+
+        .restriction-type {
+            background: #ffffff1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .restriction-name {
+            flex: 1;
+            font-weight: 400;
+            font-size: 15px;
+            color: #b1b1b1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            strong {
+                font-weight: 500;
+                color: white;
+            }
+
+            code {
+                color: white;
+            }
+        }
+
+        .btn-delete {
+            padding: 5px;
+            border-radius: 50px;
+            border: 1px solid #ffffff26;
+            cursor: pointer;
+            transition: background-color 200ms;
+        }
+        .btn-delete:hover {
+            background: #ffffff12;
+        }
     }
     
     .restriction-form {
@@ -717,4 +771,48 @@ html, body {
 }
 .main-panel.full-width {
     width: 100%;
+}
+
+.view-mode-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    padding: 4px;
+    border-radius: 6px;
+    width: fit-content;
+    border: 1px solid #ffffff1c;
+}
+
+.toggle-btn {
+    padding: 5px 10px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #b0b0b0;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.toggle-btn:hover {
+    color: white;
+}
+
+.toggle-btn.active {
+    background: #10623d;
+    color: white;
+}
+
+/* Custom Scrollbars */
+.scrollbar {
+    scrollbar-color: #ffffff1c transparent;
+}
+.scrollbar::-webkit-scrollbar {
+    width: 0.55em;
+    background-color: transparent;
+}
+.scrollbar::-webkit-scrollbar-thumb {
+    background-color: #ffffff1c;
+    border-radius: 50px;
 }

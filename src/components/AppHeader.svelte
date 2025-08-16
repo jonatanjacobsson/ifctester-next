@@ -34,7 +34,7 @@
             return;
         }
         try {
-            await IDS.exportDocument(IDS.Module.activeDocument.id);
+            await IDS.exportDocument(IDS.Module.activeDocument);
         } catch (error) {
             alert('Error saving file: ' + error.message);
         }

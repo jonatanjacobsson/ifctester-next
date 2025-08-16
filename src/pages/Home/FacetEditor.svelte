@@ -1,12 +1,13 @@
 <script>
     import RestrictionEditor from './RestrictionEditor.svelte';
+    import {stringifyFacet} from "$src/modules/api/ids.svelte.js";
     
     /**
      * Applicability facets wont have: "@uri", "@instructions", "@cardinality"
      * @ in name --> simple string value
      * else --> can be simpleValue, Restriction or list of Restrictions
     */
-    let { facet = $bindable(), facetType, activeTab, removeFacet, index } = $props();
+    let { facet = $bindable(), facetType, activeTab, removeFacet, index, specification } = $props();
 
     const getSpecialProp = (prop) => {
         return facet[prop] ?? "";
@@ -19,7 +20,7 @@
 <div class="restriction-item">
     <div class="restriction-header">
         <span class="restriction-type">{facetType.toUpperCase()}</span>
-        <span class="restriction-name">{facet?.name?.simpleValue || facetType}</span>
+        <span class="restriction-name">{@html stringifyFacet(activeTab, facet, facetType, specification)}</span>
         <button class="btn-delete" onclick={() => removeFacet(facetType, index)} aria-label="Delete Restriction">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 6L6 18M6 6l12 12"></path>

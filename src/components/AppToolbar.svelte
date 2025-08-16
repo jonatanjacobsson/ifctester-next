@@ -126,7 +126,7 @@
             </Tooltip.Root>
         </Tooltip.Provider>
     </div>
-    <div class="content">
+    <div class="content scrollbar">
         <div class="content-header">
             <h1>IFC Models</h1>
             <button aria-label="Close Toolbar">
@@ -164,10 +164,10 @@
                 </button>
             </div>
             
-            <!-- Loaded Models -->
+            <!-- Loaded IFC Models -->
             {#if IFCModels.models.length > 0}
                 <div class="section">
-                    <h3>Loaded Models</h3>
+                    <h3>Active Models</h3>
                     <div class="models-list">
                         {#each IFCModels.models as model}
                             <div class="model-item">
@@ -175,7 +175,6 @@
                                     <div class="model-name">{model.fileName}</div>
                                     <div class="model-meta">
                                         <span class="model-size">{formatFileSize(model.fileSize)}</span>
-                                        <span class="model-time">Loaded {model.loadedAt.toLocaleTimeString()}</span>
                                     </div>
                                 </div>
                                 <button class="unload-btn" onclick={() => handleUnloadModel(model.id)} title="Unload model" aria-label="Unload model">
@@ -267,7 +266,7 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
-        background: #3b82f6;
+        background: #ffffff12;
         color: white;
         border: none;
         border-radius: 0.375rem;
@@ -278,20 +277,20 @@
     }
     
     .load-btn:hover:not(:disabled), .audit-btn:hover:not(:disabled) {
-        background: #2563eb;
+        background: #ffffff1a;
     }
     
     .load-btn:disabled, .audit-btn:disabled {
-        background: #9ca3af;
+        background: #ffffff0a;
         cursor: not-allowed;
     }
     
     .audit-btn {
-        background: #197148;
+        background: #12613d;
     }
     
     .audit-btn:hover:not(:disabled) {
-        background: #059669;
+        background: #197148;
     }
     
     .audit-btn:disabled {
@@ -316,7 +315,6 @@
     .model-item {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         padding: 0.75rem;
         border: 1px solid #e5e7eb24;
         border-radius: 0.375rem;
@@ -326,13 +324,16 @@
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
-        flex: 1;
+        width: calc(100% - 32px);
     }
     
     .model-name {
         font-size: 0.875rem;
         font-weight: 500;
         color: #ffffffd9;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .model-meta {
@@ -346,8 +347,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 2rem;
-        height: 2rem;
+        min-width: 32px;
+        height: 32px;
         background: none;
         color: #6b7280;
         border-radius: 0.25rem;
@@ -356,7 +357,7 @@
     }
     
     .unload-btn:hover {
-        color: #dc2626;
+        color: #ff7171;
     }
     
     .help-text {
@@ -387,7 +388,7 @@
     
     .empty-state p:first-of-type {
         font-weight: 500;
-        color: #667286;
+        color: #8d8d8d;
     }
     
     .audit-results {

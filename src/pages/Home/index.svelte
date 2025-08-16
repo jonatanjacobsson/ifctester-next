@@ -8,27 +8,28 @@
     import SpecificationEditor from "./SpecificationEditor.svelte";
     import ApplicabilityPanel from "./ApplicabilityPanel.svelte";
     import RequirementsPanel from "./RequirementsPanel.svelte";
+    import IdsViewer from "./IdsViewer.svelte";
     import {onMount} from "svelte";
 
-    let activeTab = $state('info');
-    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null);
-    let activeSpecification = $derived(activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
-        activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null);
+    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
+    let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
+    let activeSpecification = $derived(activeDocument && documentState?.activeSpecification !== null && activeDocument.specifications?.specification ? 
+        activeDocument.specifications.specification[documentState.activeSpecification] : null);
     
     async function addNewSpecification() {
         if (!IDS.Module.activeDocument) return;
-        await IDS.createSpecification(IDS.Module.activeDocument.id);
+        await IDS.createSpecification(IDS.Module.activeDocument);
     }
     
     function selectSpecification(index) {
         if (IDS.Module.activeDocument) {
-            IDS.Module.activeDocument.specification = index;
+            IDS.setDocumentState(IDS.Module.activeDocument, { activeSpecification: index });
         }
     }
     
     async function deleteSpecification(specIndex) {
         if (!IDS.Module.activeDocument) return;
-        await IDS.deleteSpecification(IDS.Module.activeDocument.id, specIndex);
+        await IDS.deleteSpecification(IDS.Module.activeDocument, specIndex);
     }
     
     async function exportIDS() {
@@ -38,7 +39,7 @@
         }
         
         try {
-            await IDS.exportDocument(IDS.Module.activeDocument.id);
+            await IDS.exportDocument(IDS.Module.activeDocument);
         } catch (error) {
             console.error('Error exporting IDS:', error);
             alert('Error exporting IDS: ' + error.message);
@@ -55,7 +56,7 @@
                 <IdsTabs />
             {/if}
             <div class="ids-builder">
-                {#if IDS.Module.activeDocument}
+                {#if IDS.Module.activeDocument && documentState?.viewMode !== 'viewer'}
                     <div class="ids-sidebar">
                         <div class="sidebar-header">
                             <h3>Specifications</h3>
@@ -66,14 +67,14 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="specifications-list">
-                            <div class="spec-item" class:active={IDS.Module.activeDocument?.specification === null} onclick={() => { if (IDS.Module.activeDocument) IDS.Module.activeDocument.specification = null; }}>
-                                <span class="spec-icon">📋</span>
-                                <span class="spec-name">{activeDocument?.info.title || "New IDS"}</span>
+                        <div class="specifications-list scrollbar">
+                            <div class="spec-item" class:active={documentState?.activeSpecification === null} onclick={() => { if (IDS.Module.activeDocument) IDS.setDocumentState(IDS.Module.activeDocument, { activeSpecification: null }); }}>
+                                <span class="spec-icon">ℹ️</span>
+                                <span class="spec-name">IDS Information</span>
                             </div>
                             {#if activeDocument?.specifications?.specification}
                                 {#each activeDocument.specifications.specification as spec, index}
-                                    <div class="spec-item" class:active={IDS.Module.activeDocument?.specification === index} onclick={() => selectSpecification(index)}>
+                                    <div class="spec-item" class:active={documentState?.activeSpecification === index} onclick={() => selectSpecification(index)}>
                                         <span class="spec-icon">📄</span>
                                         <span class="spec-name">{spec["@name"] || "Specification " + (index + 1)}</span>
                                         <button class="btn-delete" onclick={() => deleteSpecification(index)}>
@@ -87,33 +88,47 @@
                         </div>
                     </div>
                 {/if}
-                <div class="main-panel" class:full-width={!IDS.Module.activeDocument}>
+                <div class="main-panel" class:full-width={!IDS.Module.activeDocument} class:scrollbar={true}>
                     {#if !IDS.Module.activeDocument}
                         <div class="no-document">
                             <h2>No Active Document</h2>
                             <p>Please create or open an existing IDS file.</p>
                         </div>
-                    {:else if IDS.Module.activeDocument?.specification === null}
-                        <IdsMetadataEditor />
                     {:else}
-                        <div class="specification-editor">
-                            <div class="spec-header">
-                                <h2>Specification</h2>
-                                <div class="spec-tabs">
-                                    <button class="btn tab-btn" class:active={activeTab === 'info'} onclick={() => activeTab = 'info'}>Info</button>
-                                    <button class="btn tab-btn" class:active={activeTab === 'applicability'} onclick={() => activeTab = 'applicability'}>Applicability</button>
-                                    <button class="btn tab-btn" class:active={activeTab === 'requirements'} onclick={() => activeTab = 'requirements'}>Requirements</button>
-                                </div>
-                            </div>
-                            
-                            {#if activeTab === 'info'}
-                                <SpecificationEditor />
-                            {:else if activeTab === 'applicability'}
-                                <ApplicabilityPanel activeTab />
-                            {:else if activeTab === 'requirements'}
-                                <RequirementsPanel activeTab />
-                            {/if}
+                        <!-- Editor/Viewer Toggle -->
+                        <div class="view-mode-toggle">
+                            <button class="toggle-btn" class:active={documentState?.viewMode === 'editor'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'editor' })}>
+                                Editor
+                            </button>
+                            <button class="toggle-btn" class:active={documentState?.viewMode === 'viewer'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'viewer' })}>
+                                Viewer
+                            </button>
                         </div>
+
+                        {#if documentState?.viewMode === 'viewer'}
+                            <IdsViewer />
+                        {:else if documentState?.activeSpecification === null}
+                            <IdsMetadataEditor />
+                        {:else}
+                            <div class="specification-editor">
+                                <div class="spec-header">
+                                    <h2>{activeSpecification ? activeSpecification["@name"] || "Specification" : "Specification"}</h2>
+                                    <div class="spec-tabs">
+                                        <button class="btn tab-btn" class:active={documentState?.activeTab === 'info'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { activeTab: 'info' })}>Info</button>
+                                        <button class="btn tab-btn" class:active={documentState?.activeTab === 'applicability'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { activeTab: 'applicability' })}>Applicability</button>
+                                        <button class="btn tab-btn" class:active={documentState?.activeTab === 'requirements'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { activeTab: 'requirements' })}>Requirements</button>
+                                    </div>
+                                </div>
+                                
+                                {#if documentState?.activeTab === 'info'}
+                                    <SpecificationEditor />
+                                {:else if documentState?.activeTab === 'applicability'}
+                                    <ApplicabilityPanel activeTab />
+                                {:else if documentState?.activeTab === 'requirements'}
+                                    <RequirementsPanel activeTab />
+                                {/if}
+                            </div>
+                        {/if}
                     {/if}
                 </div>
             </div>

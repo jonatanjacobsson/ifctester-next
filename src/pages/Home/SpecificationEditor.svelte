@@ -1,9 +1,10 @@
 <script>
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
-    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null);
-    let activeSpecification = $derived(activeDocument && IDS.Module.activeDocument?.specification !== null && activeDocument.specifications?.specification ? 
-        activeDocument.specifications.specification[IDS.Module.activeDocument.specification] : null);
+    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
+    let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
+    let activeSpecification = $derived(activeDocument && documentState?.activeSpecification !== null && activeDocument.specifications?.specification ? 
+        activeDocument.specifications.specification[documentState.activeSpecification] : null);
 
     const getProp = (prop) => {
         return activeSpecification?.[prop] ?? "";
@@ -24,17 +25,6 @@
                 activeSpecification["@ifcVersion"] = activeSpecification["@ifcVersion"].filter(v => v !== version);
             }
         }
-    };
-
-    const getUsage = () => {
-        if (!activeSpecification?.applicability) return 'required';
-        const minOccurs = activeSpecification.applicability["@minOccurs"];
-        const maxOccurs = activeSpecification.applicability["@maxOccurs"];
-        
-        if (minOccurs === 1 && maxOccurs === "unbounded") return 'required';
-        if (minOccurs === 0 && maxOccurs === "unbounded") return 'optional';
-        if (minOccurs === 0 && maxOccurs === 0) return 'prohibited';
-        return 'required';
     };
 
     const setUsage = (usage) => {
@@ -70,7 +60,7 @@
         </div>
         <div class="form-group">
             <label for="spec-cardinality">Usage</label>
-            <select class="form-input" id="spec-cardinality" value={getUsage()} onchange={(e) => setUsage(e.target.value)}>
+            <select class="form-input" id="spec-cardinality" value={IDS.getSpecUsage(activeSpecification)} onchange={(e) => setUsage(e.target.value)}>
                 <option value="required">Required</option>
                 <option value="optional">Optional</option>
                 <option value="prohibited">Prohibited</option>

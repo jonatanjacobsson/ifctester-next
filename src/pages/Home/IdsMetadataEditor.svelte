@@ -1,7 +1,7 @@
 <script>
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
-    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument.id] : null);
+    let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
 
     const getProp = (prop) => {
         return activeDocument?.info[prop] ?? "";
@@ -13,7 +13,9 @@
 </script>
 
 <div class="ids-info">
-    <h2>IDS Information</h2>
+    <div class="ids-md-header">
+        <h2>IDS Information</h2>
+    </div>
     <div class="form-grid">
         <div class="form-group">
             <label>Title</label>
