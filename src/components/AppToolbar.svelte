@@ -454,13 +454,13 @@
     }
     
     .report-status.pass {
-        background: #10b98122;
+        border: 1px solid #30dea422;
         color: #10b981;
     }
     
     .report-status.fail {
-        background: #ef444422;
-        color: #ef4444;
+        border: 1px solid #ff989863;
+        color: #ff8282;
     }
     
     .report-summary {
