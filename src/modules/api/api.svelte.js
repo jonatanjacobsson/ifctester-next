@@ -1,4 +1,5 @@
 import wasm from "$src/modules/wasm";
+import hyperid from "hyperid";
 
 export let Autocompletions = $state({
     entityClasses: [],
@@ -10,8 +11,11 @@ export let Autocompletions = $state({
 
 export let IFCModels = $state({
     models: [],
-    isLoading: false
+    isLoading: false,
+    audits: []
 });
+
+const id = hyperid();
 
 // Preload autocompletions on initialization
 wasm.init().then(async () => {
@@ -87,7 +91,7 @@ export function getDataTypes() {
     return Autocompletions.dataTypes;
 }
 
-export async function loadIfcModel(file) {
+export async function loadIfc(file) {
     try {
         IFCModels.isLoading = true;
         
@@ -116,7 +120,7 @@ export async function loadIfcModel(file) {
     }
 }
 
-export async function unloadIfcModel(modelId) {
+export async function unloadIfc(modelId) {
     try {
         // Unload model
         await wasm.unloadIfc(modelId);
@@ -131,7 +135,7 @@ export async function unloadIfcModel(modelId) {
     }
 }
 
-export async function auditIfcModel(modelId, idsData) {
+export async function auditIfc(modelId, idsData) {
     try {
         let idsBytes;
         if (typeof idsData === 'string') {
@@ -157,6 +161,67 @@ export function getLoadedModels() {
     return IFCModels.models;
 }
 
-export function getModelById(modelId) {
+export async function openIfc() {
+    return new Promise((resolve, reject) => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.ifc';
+        
+        fileInput.onchange = async (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                reject(new Error('No file selected'));
+                return;
+            }
+            
+            // Check if it's an IFC file
+            if (!file.name.toLowerCase().endsWith('.ifc')) {
+                reject(new Error('Please select a valid IFC file (.ifc)'));
+                return;
+            }
+            
+            try {
+                await loadIfc(file);
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        fileInput.onerror = () => reject(new Error('Failed to open file picker'));
+        fileInput.click();
+    });
+}
+
+export function getIfcById(modelId) {
     return IFCModels.models.find(model => model.id === modelId);
+}
+
+export function createAuditReport(modelId, document, auditData) {
+    const model = getIfcById(modelId);
+    if (!model) return;
+    
+    const auditReport = {
+        id: id(),
+        modelId: modelId,
+        modelName: model.fileName,
+        document: document,
+        date: new Date().toISOString(),
+        data: auditData
+    };
+    
+    IFCModels.audits.push(auditReport);
+    return auditReport;
+}
+
+export function getAuditReportsForIfc(modelId) {
+    return IFCModels.audits.filter(audit => audit.modelId === modelId);
+}
+
+export function getAuditReportById(auditId) {
+    return IFCModels.audits.find(audit => audit.id === auditId);
+}
+
+export function clearIdsAuditReports(document) {
+    IFCModels.audits = IFCModels.audits.filter(audit => audit.document !== document);
 }

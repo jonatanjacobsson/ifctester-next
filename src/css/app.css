@@ -383,6 +383,10 @@ html, body {
     .ids-tab.active {
         background: #ffffff0f;
         border-bottom: 1px solid #239460;
+
+        .tab-close {
+            opacity: 1;
+        }
     }
 
     .filler-tab {
@@ -458,7 +462,7 @@ html, body {
                 
                 .spec-name {
                     flex: 1;
-                    font-size: 14px;
+                    font-size: 15px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -482,10 +486,10 @@ html, body {
                 }
             }
             .spec-item:hover {
-                background: #ffffff1c;
+                background: #ffffff12;
             }
             .spec-item.active {
-                background: #ffffff1c;
+                background: #ffffff12;
             }
             .spec-item:hover .btn-delete {
                 opacity: 1;
@@ -508,11 +512,20 @@ html, body {
         height: 100%;
         text-align: center;
         color: #a0a0a0;
+        gap: 16px;
+
+        .no-document-icon {
+            height: 125px;
+            width: 200px;
+            background: url(/images/no_document.svg);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 15px;
+        }
 
         h2 {
-            margin: 0 0 16px 0;
             font-size: 24px;
-            font-weight: 600;
             color: #e0e0e0;
         }
 
@@ -669,9 +682,9 @@ html, body {
     
     .restrictions-header h3 {
         margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #e0e0e0;
+        font-size: 16px;
+        color: #b1b1b1;
+        text-transform: uppercase;
     }
     
     .restriction-buttons {

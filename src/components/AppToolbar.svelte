@@ -1,43 +1,21 @@
 <script>
     import * as Tooltip from "$lib/components/ui/tooltip";
-    import { IFCModels, loadIfcModel, unloadIfcModel, auditIfcModel } from "$src/modules/api/api.svelte.js";
+    import { IFCModels, loadIfc, unloadIfc, auditIfc, openIfc, createAuditReport, clearIdsAuditReports } from "$src/modules/api/api.svelte.js";
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
-    let fileInput = $state();
     let isAuditing = $state(false);
-    let auditResults = $state(null);
     
-    const handleFileSelect = async (event) => {
-        const files = event.target.files;
-        if (files && files.length > 0) {
-            const file = files[0];
-            
-            // Check if it's an IFC file
-            if (!file.name.toLowerCase().endsWith('.ifc')) {
-                alert('Please select a valid IFC file (.ifc)');
-                return;
-            }
-            
-            try {
-                await loadIfcModel(file);
-            } catch (error) {
-                alert(`Failed to load IFC model: ${error.message}`);
-            }
+    const handleLoadModel = async () => {
+        try {
+            await openIfc();
+        } catch (error) {
+            alert(`Failed to load IFC model: ${error.message}`);
         }
-        
-        // Reset input
-        if (fileInput) {
-            fileInput.value = '';
-        }
-    };
-    
-    const handleLoadModel = () => {
-        fileInput?.click();
     };
     
     const handleUnloadModel = async (modelId) => {
         try {
-            await unloadIfcModel(modelId);
+            await unloadIfc(modelId);
         } catch (error) {
             alert(`Failed to unload model: ${error.message}`);
         }
@@ -56,29 +34,53 @@
         
         try {
             isAuditing = true;
-            auditResults = null;
+            
+            // Clear previous audit reports
+            IFCModels.audits = [];
             
             // Get the active IDS document XML
             const idsXml = await IDS.exportActiveDocument();
             
             // Run audit on all loaded models
-            const results = [];
+            let firstAuditReport = null;
             for (const model of IFCModels.models) {
-                const result = await auditIfcModel(model.id, idsXml);
-                results.push({
-                    modelId: model.id,
-                    modelName: model.fileName,
-                    result: result
-                });
+                const result = await auditIfc(model.id, idsXml);
+                const auditReport = createAuditReport(model.id, IDS.Module.activeDocument, result);
+                
+                // Store the first audit report to open in viewer
+                if (!firstAuditReport) {
+                    firstAuditReport = auditReport;
+                }
             }
             
-            auditResults = results;
-            console.log('Audit results:', auditResults);
-            
+            // Switch to viewer mode and set the first audit report as active
+            if (firstAuditReport && IDS.Module.activeDocument) {
+                IDS.setDocumentState(IDS.Module.activeDocument, { 
+                    viewMode: 'viewer',
+                    auditReport: firstAuditReport.id
+                });
+            }
         } catch (error) {
             alert(`Audit failed: ${error.message}`);
         } finally {
             isAuditing = false;
+        }
+    };
+    
+    const handleViewAuditReport = (auditId) => {
+        const auditReport = IFCModels.audits.find(audit => audit.id === auditId);
+        if (!auditReport) return;
+        
+        // Switch to the IDS document that was used for this audit
+        if (auditReport.document && IDS.Module.documents[auditReport.document]) {
+            // Set the correct document as active
+            IDS.Module.activeDocument = auditReport.document;
+            
+            // Set the document state to show the audit report
+            IDS.setDocumentState(auditReport.document, { 
+                viewMode: 'viewer',
+                auditReport: auditId
+            });
         }
     };
     
@@ -137,15 +139,6 @@
         </div>
         
         <div class="content-body">
-            <!-- File input (hidden) -->
-            <input
-                bind:this={fileInput}
-                type="file"
-                accept=".ifc"
-                onchange={handleFileSelect}
-                style="display: none;"
-            />
-            
             <!-- Load Model Button -->
             <div class="section">
                 <button class="load-btn" onclick={handleLoadModel} disabled={IFCModels.isLoading}>
@@ -208,20 +201,29 @@
                     {/if}
                 </div>
                 
-                <!-- Audit Results -->
-                {#if auditResults}
+                <!-- Audit Reports -->
+                {#if IFCModels.audits.length > 0}
                     <div class="section">
-                        <h3>Audit Results</h3>
-                        <div class="audit-results">
-                            {#each auditResults as result}
-                                <div class="audit-result">
-                                    <div class="result-header">
-                                        <span class="model-name">{result.modelName}</span>
+                        <h3>Audit Reports</h3>
+                        <div class="audit-reports">
+                            {#each IFCModels.audits as audit}
+                                <button class="audit-report-item" onclick={() => handleViewAuditReport(audit.id)} aria-label="View audit report for {audit.modelName}">
+                                    <div class="report-info">
+                                        <div class="report-title">{audit.modelName}</div>
+                                        <div class="report-meta">
+                                            <span class="report-date">{new Date(audit.date).toLocaleString()}</span>
+                                            <span class="report-status {audit.data.status ? 'pass' : 'fail'}">
+                                                {audit.data.status ? 'PASS' : 'FAIL'}
+                                            </span>
+                                        </div>
+                                        <div class="report-summary">
+                                            {audit.data.total_specifications_pass}/{audit.data.total_specifications} specs passed
+                                        </div>
                                     </div>
-                                    <div class="result-content">
-                                        <pre>{JSON.stringify(result.result, null, 2)}</pre>
-                                    </div>
-                                </div>
+                                    <svg class="view-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 18l6-6-6-6"/>
+                                    </svg>
+                                </button>
                             {/each}
                         </div>
                     </div>
@@ -391,37 +393,83 @@
         color: #8d8d8d;
     }
     
-    .audit-results {
+    .audit-reports {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        background: #000000;
+        gap: 0.5rem;
     }
     
-    .audit-result {
+    .audit-report-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
         border: 1px solid #e5e7eb24;
         border-radius: 0.375rem;
-        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: none;
+        color: inherit;
+        text-align: left;
+        width: 100%;
     }
     
-    .result-header {
-        padding: 0.75rem;
-        border-bottom: 1px solid #e5e7eb24;
-        font-weight: 500;
+    .audit-report-item:hover {
+        background: #ffffff0a;
+        border-color: #e5e7eb40;
+    }
+    
+    .report-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        flex: 1;
+    }
+    
+    .report-title {
         font-size: 0.875rem;
+        font-weight: 500;
+        color: #ffffffd9;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
-    .result-content {
-        padding: 0.75rem;
-    }
-    
-    .result-content pre {
-        margin: 0;
+    .report-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-size: 0.75rem;
-        color: #77869e;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        max-height: 300px;
-        overflow-y: auto;
+    }
+    
+    .report-date {
+        color: #6b7280;
+    }
+    
+    .report-status {
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .report-status.pass {
+        background: #10b98122;
+        color: #10b981;
+    }
+    
+    .report-status.fail {
+        background: #ef444422;
+        color: #ef4444;
+    }
+    
+    .report-summary {
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+    
+    .view-icon {
+        color: #6b7280;
+        margin-left: 0.5rem;
     }
 </style>

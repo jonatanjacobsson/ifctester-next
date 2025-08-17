@@ -1,4 +1,5 @@
 import wasm from "$src/modules/wasm";
+import { clearIdsAuditReports } from "./api.svelte.js";
 import hyperid from "hyperid";
 import {tick} from "svelte";
 
@@ -43,6 +44,9 @@ export async function createDocument() {
 }
 
 export async function deleteDocument(id) {
+    // Clear any audit reports generated using this IDS document
+    clearIdsAuditReports(id);
+    
     delete Module.documents[id];
     delete Module.states[id];
 
@@ -311,13 +315,13 @@ export function stringifyFacet(clauseType, facet, facetType, spec) {
     // PartOf facet
     else if (facetType === "partOf") {
         if (clauseType === "applicability") {
-            descriptions.push(`An element with an ${facet['@relation']} relationship`);
+            descriptions.push(`An element with an **${facet['@relation']}** relationship`);
 
             if (facet.name) {
                 descriptions.push(`with an entity where IFC class ${stringifyValue(facet.name)}`);
             }
         } else {
-            descriptions.push(`An element shall have an ${facet['@relation']} relationship`);
+            descriptions.push(`An element shall have an **${facet['@relation']}** relationship`);
 
             if (facet.name) {
                 descriptions.push(`with an entity where IFC class ${stringifyValue(facet.name)}`);
@@ -330,12 +334,17 @@ export function stringifyFacet(clauseType, facet, facetType, spec) {
 
     let combined = descriptions.join(" ");
 
-    if (usage == "optional" && clauseType == "requirements") {
-        combined = combined.replace("Shall", "May").replace("shall", "may");
-    }
-    else if (usage == "prohibited" && clauseType == "requirements") {
+    // Post-process for prohibited and optional requirements
+    let isProhibited = false;
+
+    if (usage == "prohibited") isProhibited = !isProhibited;
+    if (clauseType == "requirements" && "@cardinality" in facet && facet["@cardinality"] == "prohibited") isProhibited = !isProhibited;
+    
+    if (isProhibited)
         combined = combined.replace("Shall", "Shall not").replace("shall", "shall not");
-    }
+
+    if (clauseType == "requirements" && "@cardinality" in facet && facet["@cardinality"] == "optional")
+        combined = combined.replace("Shall", "May").replace("shall", "may");
     
     return renderFacetString(combined);
 }

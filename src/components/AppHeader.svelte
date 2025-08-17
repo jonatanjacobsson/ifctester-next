@@ -2,6 +2,7 @@
     import * as Menubar from "$lib/components/ui/menubar";
     import * as Dialog from "$lib/components/ui/dialog";
     import * as IDS from "$src/modules/api/ids.svelte.js";
+    import * as API from "$src/modules/api/api.svelte.js";
 
     let { isOpen = false } = $props();
 
@@ -67,7 +68,7 @@
             <Menubar.Menu>
                 <Menubar.Trigger>IFC</Menubar.Trigger>
                 <Menubar.Content>
-                    <Menubar.Item>Open IFC model</Menubar.Item>
+                    <Menubar.Item onclick={API.openIFCModel}>Open IFC model</Menubar.Item>
                     <Menubar.Separator />
                     <Menubar.Item>Run Audit</Menubar.Item>
                 </Menubar.Content>

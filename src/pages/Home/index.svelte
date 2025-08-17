@@ -91,16 +91,19 @@
                 <div class="main-panel" class:full-width={!IDS.Module.activeDocument} class:scrollbar={true}>
                     {#if !IDS.Module.activeDocument}
                         <div class="no-document">
-                            <h2>No Active Document</h2>
-                            <p>Please create or open an existing IDS file.</p>
+                            <div class="no-document-icon"></div>
+                            <h2>Get Started</h2>
+                            <p>Create or open an existing IDS document.</p>
+                            <button class="btn" onclick={() => IDS.createDocument()}>Create IDS document</button>
+                            <button class="btn" onclick={() => IDS.openDocument()}>Import IDS file</button>
                         </div>
                     {:else}
                         <!-- Editor/Viewer Toggle -->
                         <div class="view-mode-toggle">
-                            <button class="toggle-btn" class:active={documentState?.viewMode === 'editor'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'editor' })}>
+                            <button class="toggle-btn" class:active={documentState?.viewMode === 'editor'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'editor', auditReport: null })}>
                                 Editor
                             </button>
-                            <button class="toggle-btn" class:active={documentState?.viewMode === 'viewer'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'viewer' })}>
+                            <button class="toggle-btn" class:active={documentState?.viewMode === 'viewer'} onclick={() => IDS.setDocumentState(IDS.Module.activeDocument, { viewMode: 'viewer', auditReport: null })}>
                                 Viewer
                             </button>
                         </div>
