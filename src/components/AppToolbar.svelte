@@ -2,22 +2,24 @@
     import * as Tooltip from "$lib/components/ui/tooltip";
     import { IFCModels, loadIfc, unloadIfc, auditIfc, openIfc, createAuditReport, clearIdsAuditReports, runAudit } from "$src/modules/api/api.svelte.js";
     import * as IDS from "$src/modules/api/ids.svelte.js";
+    import { error, success } from "$src/modules/utils/toast.svelte.js";
     
     let isAuditing = $state(false);
     
     const handleLoadModel = async () => {
         try {
             await openIfc();
-        } catch (error) {
-            alert(`Failed to load IFC model: ${error.message}`);
+            success('IFC model loaded successfully');
+        } catch (err) {
+            error(`Failed to load IFC model: ${err.message}`);
         }
     };
     
     const handleUnloadModel = async (modelId) => {
         try {
             await unloadIfc(modelId);
-        } catch (error) {
-            alert(`Failed to unload model: ${error.message}`);
+        } catch (err) {
+            error(`Failed to unload model: ${err.message}`);
         }
     };
     
@@ -25,8 +27,10 @@
         try {
             isAuditing = true;
             await runAudit();
-        } catch (error) {
-            alert(`Audit failed: ${error.message}`);
+            success('Audit completed successfully');
+        } catch (err) {
+            console.error("Audit failed: ", err);
+            error(`Audit failed: check console for details`);
         } finally {
             isAuditing = false;
         }

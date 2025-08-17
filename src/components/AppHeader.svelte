@@ -3,6 +3,7 @@
     import * as Dialog from "$lib/components/ui/dialog";
     import * as IDS from "$src/modules/api/ids.svelte.js";
     import * as API from "$src/modules/api/api.svelte.js";
+    import { error, success, info } from "$src/modules/utils/toast.svelte.js";
 
     let { isOpen = false } = $props();
 
@@ -21,31 +22,35 @@
     async function openIDSFile() {
         try {
             await IDS.openDocument();
-        } catch (error) {
-            if (error.message !== 'File selection cancelled') {
-                alert('Error opening file: ' + error.message);
-                console.error(error);
+        } catch (err) {
+            if (err.message !== 'File selection cancelled') {
+                error('Error opening file: ' + err.message);
+                console.error(err);
             }
         }
     }
 
     async function saveIDSFile() {
         if (!IDS.Module.activeDocument) {
-            alert('No document to save.');
+            error('No document to save!');
             return;
         }
         try {
             await IDS.exportDocument(IDS.Module.activeDocument);
-        } catch (error) {
-            alert('Error saving file: ' + error.message);
+            success('Document saved successfully');
+        } catch (err) {
+            console.error("Error saving file: ", err);
+            error('Error saving file: check console for details');
         }
     }
 
     async function runAudit() {
         try {
             await API.runAudit();
-        } catch (error) {
-            alert(`Audit failed: ${error.message}`);
+            success('Audit completed successfully');
+        } catch (err) {
+            console.error("Audit failed: ", err);
+            error(`Audit failed: check console for details`);
         }
     }
 </script>
@@ -70,7 +75,7 @@
                         <Menubar.Shortcut>⌘S</Menubar.Shortcut>
                     </Menubar.Item>
                     <Menubar.Separator />
-                    <Menubar.Item onclick={() => alert("Coming soon!")}>Save to Google Drive</Menubar.Item>
+                    <Menubar.Item onclick={() => info("Coming soon!")}>Save to Google Drive</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Menu>
             <Menubar.Menu>

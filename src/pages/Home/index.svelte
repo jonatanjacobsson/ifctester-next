@@ -10,6 +10,8 @@
     import RequirementsPanel from "./RequirementsPanel.svelte";
     import IdsViewer from "./IdsViewer.svelte";
     import SplashScreen from "$src/components/SplashScreen.svelte";
+    import { Toaster } from "$lib/components/ui/sonner";
+    import { error, success } from "$src/modules/utils/toast.svelte.js";
     import {onMount} from "svelte";
 
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
@@ -35,15 +37,16 @@
     
     async function exportIDS() {
         if (!IDS.Module.activeDocument) {
-            alert('No document to export.');
+            error('No document to export');
             return;
         }
         
         try {
             await IDS.exportDocument(IDS.Module.activeDocument);
-        } catch (error) {
-            console.error('Error exporting IDS:', error);
-            alert('Error exporting IDS: ' + error.message);
+            success('IDS document exported successfully');
+        } catch (err) {
+            console.error('Error exporting IDS:', err);
+            error('Error exporting IDS: ' + err.message);
         }
     }
 </script>
@@ -143,3 +146,5 @@
     </div>
     <AppRibbon />
 </div>
+
+<Toaster position="top-center" />

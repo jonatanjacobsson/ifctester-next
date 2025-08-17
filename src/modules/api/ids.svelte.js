@@ -159,8 +159,7 @@ export async function exportDocument(docId) {
 
     // Validate
     if (doc.specifications.specification.length < 1) {
-        alert("Please create at least one specification before exporting the document.");
-        return;
+        throw new Error("Please create at least one specification before exporting the document.");
     }
 
     const xmlString = await wasm.exportIDS(doc);
