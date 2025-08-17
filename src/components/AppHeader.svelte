@@ -40,6 +40,14 @@
             alert('Error saving file: ' + error.message);
         }
     }
+
+    async function runAudit() {
+        try {
+            await API.runAudit();
+        } catch (error) {
+            alert(`Audit failed: ${error.message}`);
+        }
+    }
 </script>
 
 <header class="app-header">
@@ -62,15 +70,15 @@
                         <Menubar.Shortcut>⌘S</Menubar.Shortcut>
                     </Menubar.Item>
                     <Menubar.Separator />
-                    <Menubar.Item>Save to Google Drive</Menubar.Item>
+                    <Menubar.Item onclick={() => alert("Coming soon!")}>Save to Google Drive</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Menu>
             <Menubar.Menu>
                 <Menubar.Trigger>IFC</Menubar.Trigger>
                 <Menubar.Content>
-                    <Menubar.Item onclick={API.openIFCModel}>Open IFC model</Menubar.Item>
+                    <Menubar.Item onclick={API.openIfc}>Open IFC model</Menubar.Item>
                     <Menubar.Separator />
-                    <Menubar.Item>Run Audit</Menubar.Item>
+                    <Menubar.Item onclick={runAudit}>Run Audit</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Menu>
             <Menubar.Menu>

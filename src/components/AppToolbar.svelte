@@ -1,6 +1,6 @@
 <script>
     import * as Tooltip from "$lib/components/ui/tooltip";
-    import { IFCModels, loadIfc, unloadIfc, auditIfc, openIfc, createAuditReport, clearIdsAuditReports } from "$src/modules/api/api.svelte.js";
+    import { IFCModels, loadIfc, unloadIfc, auditIfc, openIfc, createAuditReport, clearIdsAuditReports, runAudit } from "$src/modules/api/api.svelte.js";
     import * as IDS from "$src/modules/api/ids.svelte.js";
     
     let isAuditing = $state(false);
@@ -22,44 +22,9 @@
     };
     
     const handleRunAudit = async () => {
-        if (IFCModels.models.length === 0) {
-            alert('Please load an IFC model first');
-            return;
-        }
-        
-        if (!IDS.Module.activeDocument) {
-            alert('Please create or open an IDS document first');
-            return;
-        }
-        
         try {
             isAuditing = true;
-            
-            // Clear previous audit reports
-            IFCModels.audits = [];
-            
-            // Get the active IDS document XML
-            const idsXml = await IDS.exportActiveDocument();
-            
-            // Run audit on all loaded models
-            let firstAuditReport = null;
-            for (const model of IFCModels.models) {
-                const result = await auditIfc(model.id, idsXml);
-                const auditReport = createAuditReport(model.id, IDS.Module.activeDocument, result);
-                
-                // Store the first audit report to open in viewer
-                if (!firstAuditReport) {
-                    firstAuditReport = auditReport;
-                }
-            }
-            
-            // Switch to viewer mode and set the first audit report as active
-            if (firstAuditReport && IDS.Module.activeDocument) {
-                IDS.setDocumentState(IDS.Module.activeDocument, { 
-                    viewMode: 'viewer',
-                    auditReport: firstAuditReport.id
-                });
-            }
+            await runAudit();
         } catch (error) {
             alert(`Audit failed: ${error.message}`);
         } finally {

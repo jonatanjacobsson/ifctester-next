@@ -1,4 +1,5 @@
 import wasm from "$src/modules/wasm";
+import * as IDS from "$src/modules/api/ids.svelte.js";
 import hyperid from "hyperid";
 
 export let Autocompletions = $state({
@@ -224,4 +225,42 @@ export function getAuditReportById(auditId) {
 
 export function clearIdsAuditReports(document) {
     IFCModels.audits = IFCModels.audits.filter(audit => audit.document !== document);
+}
+
+export async function runAudit() {
+    if (IFCModels.models.length === 0) {
+        throw new Error('Please load an IFC model first');
+    }
+    
+    if (!IDS.Module.activeDocument) {
+        throw new Error('Please create or open an IDS document first');
+    }
+    
+    // Clear previous audit reports
+    IFCModels.audits = [];
+    
+    // Get the active IDS document XML
+    const idsXml = await IDS.exportActiveDocument();
+    
+    // Run audit on all loaded models
+    let firstAuditReport = null;
+    for (const model of IFCModels.models) {
+        const result = await auditIfc(model.id, idsXml);
+        const auditReport = createAuditReport(model.id, IDS.Module.activeDocument, result);
+        
+        // Store the first audit report to open in viewer
+        if (!firstAuditReport) {
+            firstAuditReport = auditReport;
+        }
+    }
+    
+    // Switch to viewer mode and set the first audit report as active
+    if (firstAuditReport && IDS.Module.activeDocument) {
+        IDS.setDocumentState(IDS.Module.activeDocument, { 
+            viewMode: 'viewer',
+            auditReport: firstAuditReport.id
+        });
+    }
+    
+    return firstAuditReport;
 }
