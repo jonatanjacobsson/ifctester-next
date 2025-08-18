@@ -121,6 +121,61 @@
     }
 }
 
+@layer components {
+    .app-ribbon {
+        height: 30px;
+        border-top: 1px solid #ffffff1c;
+        padding: 0px 15px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .app-ribbon .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #e0e0e0;
+    }
+    
+    .app-ribbon .status-indicator.ready {
+        color: #4caf50;
+    }
+    
+    .app-ribbon .status-indicator.error {
+        color: #f44336;
+    }
+    
+    .app-ribbon .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid #555;
+        border-top: 2px solid #e0e0e0;
+        border-radius: 50%;
+        animation: app-ribbon-spin 1s linear infinite;
+    }
+    
+    .app-ribbon .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4caf50;
+    }
+    
+    .app-ribbon .error-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f44336;
+    }
+    
+    @keyframes app-ribbon-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+}
+
 html, body {
     font-family: "DM Sans", "Open Sans", sans-serif;
     margin: 0;
@@ -165,59 +220,6 @@ html, body {
             flex: 1;
             background-color: #191919;
             overflow: auto;
-        }
-    }
-
-    .app-ribbon {
-        height: 30px;
-        border-top: 1px solid #ffffff1c;
-        padding: 0px 15px;
-        display: flex;
-        align-items: center;
-        font-size: 0.9rem;
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #e0e0e0;
-        }
-        
-        .status-indicator.ready {
-            color: #4caf50;
-        }
-        
-        .status-indicator.error {
-            color: #f44336;
-        }
-        
-        .spinner {
-            width: 14px;
-            height: 14px;
-            border: 2px solid #555;
-            border-top: 2px solid #e0e0e0;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-        }
-        
-        .error-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #f44336;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     }
 

@@ -104,10 +104,31 @@
         <Dialog.Header>
             <Dialog.Title>About IfcTester</Dialog.Title>
         </Dialog.Header>
-        <div class="py-4">
-            <p class="text-sm text-muted-foreground">
-                IfcTester (Next). Designed and developed by Sayan J. Das as their Google Summer of Code 2025 project under the mentorship of Dion Moult.
+        <div class="py-4 space-y-4">
+            <p class="text-sm text-muted-foreground leading-relaxed">
+                IfcTester (Next). Designed and developed by 
+                <a href="https://github.com/theseyan" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Sayan J. Das</a> 
+                as their Google Summer of Code 2025 project under the mentorship of 
+                <a href="https://github.com/moult" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Dion Moult</a>.
             </p>
+            
+            <div class="space-y-2">
+                <p class="text-sm">
+                    <span class="font-medium">GSoC Project:</span>
+                    <br>
+                    <a href="https://summerofcode.withgoogle.com/programs/2025/projects/888lO1F8" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
+                        summerofcode.withgoogle.com/programs/2025/projects/888lO1F8
+                    </a>
+                </p>
+                
+                <p class="text-sm">
+                    <span class="font-medium">Support & Bug Reports:</span>
+                    <br>
+                    <a href="https://matrix.to/#/@sayanjdas:matrix.org" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
+                        @sayanjdas:matrix.org
+                    </a>
+                </p>
+            </div>
         </div>
         <Dialog.Footer>
             <Dialog.Close asChild>
