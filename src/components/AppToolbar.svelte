@@ -134,7 +134,16 @@
                         {#each IFCModels.models as model}
                             <div class="model-item">
                                 <div class="model-info">
-                                    <div class="model-name">{model.fileName}</div>
+                                    <Tooltip.Provider>
+                                        <Tooltip.Root delayDuration={0}>
+                                            <Tooltip.Trigger>
+                                                <div class="model-name">{model.fileName}</div>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Content>
+                                                <p>{model.fileName}</p>
+                                            </Tooltip.Content>
+                                        </Tooltip.Root>
+                                    </Tooltip.Provider>
                                     <div class="model-meta">
                                         <span class="model-size">{formatFileSize(model.fileSize)}</span>
                                     </div>
@@ -178,7 +187,16 @@
                             {#each IFCModels.audits as audit}
                                 <button class="audit-report-item" onclick={() => handleViewAuditReport(audit.id)} aria-label="View audit report for {audit.modelName}">
                                     <div class="report-info">
-                                        <div class="report-title">{audit.modelName}</div>
+                                        <Tooltip.Provider>
+                                            <Tooltip.Root delayDuration={0}>
+                                                <Tooltip.Trigger>
+                                                    <div class="report-title">{audit.modelName}</div>
+                                                </Tooltip.Trigger>
+                                                <Tooltip.Content>
+                                                    <p>{audit.modelName}</p>
+                                                </Tooltip.Content>
+                                            </Tooltip.Root>
+                                        </Tooltip.Provider>
                                         <div class="report-meta">
                                             <span class="report-date">{new Date(audit.date).toLocaleString()}</span>
                                             <span class="report-status {audit.data.status ? 'pass' : 'fail'}">
@@ -305,6 +323,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: left;
     }
     
     .model-meta {
@@ -391,7 +410,7 @@
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
-        flex: 1;
+        width: calc(100% - 32px);
     }
     
     .report-title {
@@ -401,6 +420,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: left;
     }
     
     .report-meta {

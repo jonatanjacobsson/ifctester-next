@@ -119,8 +119,8 @@ export async function openDocument() {
                         // Add document to list and set as active
                         Module.documents[docId] = doc;
                         
-                        // Initialize document state
-                        setDocumentState(docId, {});
+                        // Initialize document state and switch to viewer mode
+                        setDocumentState(docId, { viewMode: 'viewer' });
                         
                         Module.activeDocument = docId;
 

@@ -74,8 +74,6 @@
                         Save IDS file
                         <Menubar.Shortcut>⌘S</Menubar.Shortcut>
                     </Menubar.Item>
-                    <Menubar.Separator />
-                    <Menubar.Item onclick={() => info("Coming soon!")}>Save to Google Drive</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Menu>
             <Menubar.Menu>

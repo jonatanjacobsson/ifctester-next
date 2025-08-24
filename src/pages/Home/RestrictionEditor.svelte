@@ -444,7 +444,6 @@
         enumerationValues[index] = value;
         setEnumerationValues(enumerationValues);
     };
-
 </script>
 
 <div class="form-group">

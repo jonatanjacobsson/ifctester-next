@@ -542,6 +542,10 @@ html, body {
     .ids-md-header {
         margin-bottom: 24px;
     }
+
+    .specification-editor {
+        max-width: 800px;
+    }
     
     .ids-info h2, .specification-editor h2 {
         margin: 0 0 0px 0;
