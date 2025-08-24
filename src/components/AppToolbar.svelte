@@ -204,7 +204,12 @@
                                             </span>
                                         </div>
                                         <div class="report-summary">
-                                            {audit.data.total_specifications_pass}/{audit.data.total_specifications} specs passed
+                                            {audit.data.total_checks_pass}/{audit.data.total_checks} checks passed
+                                        </div>
+                                        <div class="report-progress">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: {audit.data.percent_checks_pass}%"></div>
+                                            </div>
                                         </div>
                                     </div>
                                     <svg class="view-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -460,5 +465,25 @@
     .view-icon {
         color: #6b7280;
         margin-left: 0.5rem;
+    }
+
+    .report-progress {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .progress-bar-small {
+        width: 100%;
+        height: 4px;
+        background: #ffffff12;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .progress-fill-small {
+        height: 100%;
+        background: #ffffff4f;
+        transition: width 0.3s ease;
+        border-radius: 2px;
     }
 </style>

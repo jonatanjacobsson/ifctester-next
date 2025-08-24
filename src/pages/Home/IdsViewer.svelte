@@ -1,6 +1,7 @@
 <script>
     import * as IDS from "$src/modules/api/ids.svelte.js";
-    import { getAuditReportById } from "$src/modules/api/api.svelte.js";
+    import { getAuditReportById, downloadAuditReport } from "$src/modules/api/api.svelte.js";
+    import { error, success } from "$src/modules/utils/toast.svelte.js";
 
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
     let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
@@ -76,6 +77,17 @@
         return null; // No reason needed for passed specifications
     }
 
+    async function handleDownloadReport() {
+        if (!auditReport) return;
+        
+        try {
+            await downloadAuditReport(auditReport.id);
+            success('Audit report downloaded successfully');
+        } catch (err) {
+            error(`Failed to download report: ${err.message}`);
+        }
+    }
+
     function getRequirementStatus(specIndex, reqIndex, auditData) {
         const spec = auditData.specifications[specIndex];
         if (!spec || !spec.requirements || !spec.requirements[reqIndex]) return null;
@@ -99,7 +111,19 @@
 
 <div class="ids-viewer">
     <div class="viewer-header">
-        <h1>{auditReport ? (auditReport.data.title || "Audit Report") : (activeDocument?.info?.title || "IDS Document")}</h1>
+        <div class="header-main">
+            <h1>{auditReport ? (auditReport.data.title || "Audit Report") : (activeDocument?.info?.title || "IDS Document")}</h1>
+            {#if auditReport && auditReport.htmlReport}
+                <button class="download-btn" onclick={handleDownloadReport} aria-label="Download HTML report">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Report
+                </button>
+            {/if}
+        </div>
         
         <div class="document-meta">
             {#if auditReport}
@@ -127,9 +151,9 @@
                 </div>
                 <div class="summary-stats">
                     <div class="stat-group">
-                        <span class="stat-label">Specifications:</span>
-                        <span class="stat-value">{auditReport.data.total_specifications_pass}/{auditReport.data.total_specifications}</span>
-                        <span class="stat-percent">({auditReport.data.percent_specifications_pass}%)</span>
+                        <span class="stat-label">Checks:</span>
+                        <span class="stat-value">{auditReport.data.total_checks_pass}/{auditReport.data.total_checks}</span>
+                        <span class="stat-percent">({auditReport.data.percent_checks_pass}%)</span>
                     </div>
                     <div class="stat-group">
                         <span class="stat-label">Requirements:</span>
@@ -137,10 +161,17 @@
                         <span class="stat-percent">({auditReport.data.percent_requirements_pass}%)</span>
                     </div>
                     <div class="stat-group">
-                        <span class="stat-label">Checks:</span>
-                        <span class="stat-value">{auditReport.data.total_checks_pass}/{auditReport.data.total_checks}</span>
-                        <span class="stat-percent">({auditReport.data.percent_checks_pass}%)</span>
+                        <span class="stat-label">Specifications:</span>
+                        <span class="stat-value">{auditReport.data.total_specifications_pass}/{auditReport.data.total_specifications}</span>
+                        <span class="stat-percent">({auditReport.data.percent_specifications_pass}%)</span>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {auditReport.data.percent_checks_pass}%"></div>
                 </div>
             </div>
         {/if}
@@ -410,10 +441,45 @@
         margin-bottom: 30px;
     }
 
+    .header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
     .viewer-header h1 {
-        margin: 0 0 12px 0;
+        margin: 0;
         font-size: 32px;
         color: white;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .download-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 7px 12px;
+        background: #ffffff12;
+        color: #ffffff;
+        border: 1px solid #ffffff24;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-left: 1rem;
+    }
+
+    .download-btn:hover {
+        background: #ffffff1a;
+        border-color: #ffffff40;
+    }
+
+    .download-btn svg {
+        flex-shrink: 0;
     }
 
     .document-meta {
@@ -814,5 +880,25 @@
         font-style: italic;
         color: #9ca3af;
         padding: 12px;
+    }
+
+    .progress-container {
+        margin-top: 16px;
+        width: 100%;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #ffffff12;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #26a059;
+        transition: width 0.3s ease;
+        border-radius: 4px;
     }
 </style>

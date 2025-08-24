@@ -198,7 +198,7 @@ export function getIfcById(modelId) {
     return IFCModels.models.find(model => model.id === modelId);
 }
 
-export function createAuditReport(modelId, document, auditData) {
+export function createAuditReport(modelId, document, auditData, htmlReport = null) {
     const model = getIfcById(modelId);
     if (!model) return;
     
@@ -208,7 +208,8 @@ export function createAuditReport(modelId, document, auditData) {
         modelName: model.fileName,
         document: document,
         date: new Date().toISOString(),
-        data: auditData
+        data: auditData,
+        htmlReport: htmlReport
     };
     
     IFCModels.audits.push(auditReport);
@@ -225,6 +226,34 @@ export function getAuditReportById(auditId) {
 
 export function clearIdsAuditReports(document) {
     IFCModels.audits = IFCModels.audits.filter(audit => audit.document !== document);
+}
+
+export async function downloadAuditReport(auditId) {
+    const audit = getAuditReportById(auditId);
+    if (!audit || !audit.htmlReport) {
+        throw new Error('HTML report not available for this audit');
+    }
+    
+    // Get IDS document title for filename
+    let filename = 'report.html';
+    if (audit.document && IDS.Module.documents[audit.document]) {
+        const doc = IDS.Module.documents[audit.document];
+        const title = doc.info?.title || 'untitled';
+        filename = `report_${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    }
+    
+    const blob = new Blob([audit.htmlReport], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 export async function runAudit() {
@@ -246,7 +275,12 @@ export async function runAudit() {
     let firstAuditReport = null;
     for (const model of IFCModels.models) {
         const result = await auditIfc(model.id, idsXml);
-        const auditReport = createAuditReport(model.id, IDS.Module.activeDocument, result);
+        
+        // Extract JSON and HTML reports from the result
+        const jsonData = result.json || null;
+        const htmlReport = result.html || null;
+        
+        const auditReport = createAuditReport(model.id, IDS.Module.activeDocument, jsonData, htmlReport);
         
         // Store the first audit report to open in viewer
         if (!firstAuditReport) {

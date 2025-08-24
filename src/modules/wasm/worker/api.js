@@ -115,12 +115,19 @@ export async function auditIfc(ifcId, idsData) {
     // Run audit
     specs.validate(ifc);
 
-    // Create report
-    let engine = reporter.Json(specs);
-    engine.report();
-    const report = engine.to_string();
-    
-    return JSON.parse(report);
+    // Create report in both HTML and JSON formats
+    let jsonReporter = reporter.Json(specs);
+    jsonReporter.report();
+    const jsonReport = jsonReporter.to_string();
+
+    let htmlReporter = reporter.Html(specs);
+    htmlReporter.report();
+    const htmlReport = htmlReporter.to_string();
+
+    return {
+        json: JSON.parse(jsonReport),
+        html: htmlReport
+    };
 }
 
 // Expose interface
