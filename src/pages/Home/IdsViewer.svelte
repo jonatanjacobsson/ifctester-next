@@ -2,6 +2,7 @@
     import * as IDS from "$src/modules/api/ids.svelte.js";
     import { getAuditReportById, downloadAuditReport } from "$src/modules/api/api.svelte.js";
     import { error, success } from "$src/modules/utils/toast.svelte.js";
+    import * as Tooltip from "$src/lib/components/ui/tooltip";
 
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
     let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
@@ -281,8 +282,10 @@
                                             <div class="facet-group">
                                                 {#each facets as facet, facetIndex}
                                                     <div class="facet-item">
-                                                        <span class="facet-bullet">•</span>
-                                                        <span class="facet-text">{@html IDS.stringifyFacet("applicability", facet, facetType, spec)}</span>
+                                                        <div class="facet-header">
+                                                            <span class="facet-bullet">•</span>
+                                                            <span class="facet-text">{@html IDS.stringifyFacet("applicability", facet, facetType, spec)}</span>
+                                                        </div>
                                                     </div>
                                                 {/each}
                                             </div>
@@ -303,101 +306,188 @@
                                                     {@const reqAuditData = auditReport ? getRequirementStatus(index, facetIndex, auditReport.data) : null}
                                                     {@const specStatus = auditReport ? getSpecificationStatus(index, auditReport.data) : null}
                                                     <div class="facet-item {auditReport && reqAuditData && specStatus !== 'skipped' ? (reqAuditData.status ? 'audit-pass' : 'audit-fail') : ''}">
-                                                        <span class="facet-bullet">•</span>
-                                                        <span class="facet-text">{@html IDS.stringifyFacet("requirements", facet, facetType, spec)}</span>
-                                                        {#if auditReport && reqAuditData && specStatus !== 'skipped'}
-                                                            <div class="requirement-audit-details">
+                                                        <button class="facet-header" onclick={() => {if (auditReport && reqAuditData && specStatus !== 'skipped') toggleRequirementDetails(index, facetIndex)}}>
+                                                            <span class="facet-bullet">•</span>
+                                                            <span class="facet-text">{@html IDS.stringifyFacet("requirements", facet, facetType, spec)}</span>
+                                                            {#if auditReport && reqAuditData && specStatus !== 'skipped'}
                                                                 {#if reqAuditData.total_applicable > 0}
-                                                                    <button class="audit-details-toggle" onclick={() => toggleRequirementDetails(index, facetIndex)}>
+                                                                    <div class="audit-details-toggle">
                                                                         {reqAuditData.status ? 'PASS' : 'FAIL'} ({reqAuditData.total_pass}/{reqAuditData.total_applicable})
                                                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class:rotated={isRequirementDetailsExpanded(index, facetIndex)}>
                                                                             <polyline points="6,9 12,15 18,9"></polyline>
                                                                         </svg>
-                                                                    </button>
+                                                                    </div>
                                                                 {:else}
                                                                     <span class="audit-status-badge">
                                                                         {reqAuditData.status ? 'PASS' : 'FAIL'}
                                                                     </span>
                                                                 {/if}
-                                                                {#if isRequirementDetailsExpanded(index, facetIndex)}
-                                                                    <div class="entity-tables">
-                                                                        {#if reqAuditData.passed_entities && reqAuditData.passed_entities.length > 0}
-                                                                            <div class="entity-table-section pass">
-                                                                                <h4>Passed Elements ({reqAuditData.passed_entities.length})</h4>
-                                                                                <div class="entity-table-container">
+                                                            {/if}
+                                                        </button>
+                                                        {#if isRequirementDetailsExpanded(index, facetIndex)}
+                                                            <div class="facet-expansion">
+                                                                <div class="entity-tables">
+                                                                    {#if reqAuditData.passed_entities && reqAuditData.passed_entities.length > 0}
+                                                                        <div class="entity-table-section pass">
+                                                                            <h4>Passed Elements ({reqAuditData.passed_entities.length})</h4>
+                                                                            <div class="entity-table-container">
+                                                                                <Tooltip.Provider>
                                                                                     <table class="entity-table">
-                                                                                        <thead>
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Class</th>
+                                                                                            <th>PredefinedType</th>
+                                                                                            <th>Name</th>
+                                                                                            <th>Description</th>
+                                                                                            <th>GlobalId</th>
+                                                                                            <th>Tag</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        {#each reqAuditData.passed_entities.slice(0, 10) as entity}
                                                                                             <tr>
-                                                                                                <th>Class</th>
-                                                                                                <th>PredefinedType</th>
-                                                                                                <th>Name</th>
-                                                                                                <th>Description</th>
-                                                                                                <th>GlobalId</th>
-                                                                                                <th>Tag</th>
+                                                                                                <td>{entity.class}</td>
+                                                                                                <td>{entity.predefined_type || '-'}</td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.name || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.name || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root delayDuration={0}>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.description || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.description || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.global_id || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.global_id || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.tag || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.tag || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
                                                                                             </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            {#each reqAuditData.passed_entities.slice(0, 10) as entity}
-                                                                                                <tr>
-                                                                                                    <td>{entity.class}</td>
-                                                                                                    <td>{entity.predefined_type || '-'}</td>
-                                                                                                    <td>{entity.name || '-'}</td>
-                                                                                                    <td>{entity.description || '-'}</td>
-                                                                                                    <td>{entity.global_id || '-'}</td>
-                                                                                                    <td>{entity.tag || '-'}</td>
-                                                                                                </tr>
-                                                                                            {/each}
-                                                                                            {#if reqAuditData.passed_entities.length > 10}
-                                                                                                <tr class="more-row">
-                                                                                                    <td colspan="6">... {reqAuditData.passed_entities.length - 10} more passing elements not shown ...</td>
-                                                                                                </tr>
-                                                                                            {/if}
-                                                                                        </tbody>
+                                                                                        {/each}
+                                                                                        {#if reqAuditData.passed_entities.length > 10}
+                                                                                            <tr class="more-row">
+                                                                                                <td colspan="6">... {reqAuditData.passed_entities.length - 10} more passing elements not shown ...</td>
+                                                                                            </tr>
+                                                                                        {/if}
+                                                                                    </tbody>
                                                                                     </table>
-                                                                                </div>
+                                                                                </Tooltip.Provider>
                                                                             </div>
-                                                                        {/if}
-                                                                        
-                                                                        {#if reqAuditData.failed_entities && reqAuditData.failed_entities.length > 0}
-                                                                            <div class="entity-table-section fail">
-                                                                                <h4>Failed Elements ({reqAuditData.failed_entities.length})</h4>
-                                                                                <div class="entity-table-container">
+                                                                        </div>
+                                                                    {/if}
+                                                                    
+                                                                    {#if reqAuditData.failed_entities && reqAuditData.failed_entities.length > 0}
+                                                                        <div class="entity-table-section fail">
+                                                                            <h4>Failed Elements ({reqAuditData.failed_entities.length})</h4>
+                                                                            <div class="entity-table-container">
+                                                                                <Tooltip.Provider>
                                                                                     <table class="entity-table">
-                                                                                        <thead>
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Class</th>
+                                                                                            <th>PredefinedType</th>
+                                                                                            <th>Name</th>
+                                                                                            <th>Description</th>
+                                                                                            <th>Warning</th>
+                                                                                            <th>GlobalId</th>
+                                                                                            <th>Tag</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        {#each reqAuditData.failed_entities.slice(0, 10) as entity}
                                                                                             <tr>
-                                                                                                <th>Class</th>
-                                                                                                <th>PredefinedType</th>
-                                                                                                <th>Name</th>
-                                                                                                <th>Description</th>
-                                                                                                <th>Warning</th>
-                                                                                                <th>GlobalId</th>
-                                                                                                <th>Tag</th>
+                                                                                                <td>{entity.class}</td>
+                                                                                                <td>{entity.predefined_type || '-'}</td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.name || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.name || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root delayDuration={0}>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.description || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.description || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root delayDuration={0}>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.reason || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.reason || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.global_id || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.global_id || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <Tooltip.Root>
+                                                                                                        <Tooltip.Trigger>
+                                                                                                            <div class="truncated-text">{entity.tag || '-'}</div>
+                                                                                                        </Tooltip.Trigger>
+                                                                                                        <Tooltip.Content>
+                                                                                                            <p>{entity.tag || '-'}</p>
+                                                                                                        </Tooltip.Content>
+                                                                                                    </Tooltip.Root>
+                                                                                                </td>
                                                                                             </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            {#each reqAuditData.failed_entities.slice(0, 10) as entity}
-                                                                                                <tr>
-                                                                                                    <td>{entity.class}</td>
-                                                                                                    <td>{entity.predefined_type || '-'}</td>
-                                                                                                    <td>{entity.name || '-'}</td>
-                                                                                                    <td>{entity.description || '-'}</td>
-                                                                                                    <td>{entity.reason || '-'}</td>
-                                                                                                    <td>{entity.global_id || '-'}</td>
-                                                                                                    <td>{entity.tag || '-'}</td>
-                                                                                                </tr>
-                                                                                            {/each}
-                                                                                            {#if reqAuditData.failed_entities.length > 10}
-                                                                                                <tr class="more-row">
-                                                                                                    <td colspan="7">... {reqAuditData.failed_entities.length - 10} more failing elements not shown ...</td>
-                                                                                                </tr>
-                                                                                            {/if}
-                                                                                        </tbody>
+                                                                                        {/each}
+                                                                                        {#if reqAuditData.failed_entities.length > 10}
+                                                                                            <tr class="more-row">
+                                                                                                <td colspan="7">... {reqAuditData.failed_entities.length - 10} more failing elements not shown ...</td>
+                                                                                            </tr>
+                                                                                        {/if}
+                                                                                    </tbody>
                                                                                     </table>
-                                                                                </div>
+                                                                                </Tooltip.Provider>
                                                                             </div>
-                                                                        {/if}
-                                                                    </div>
-                                                                {/if}
+                                                                        </div>
+                                                                    {/if}
+                                                                </div>
                                                             </div>
                                                         {/if}
                                                     </div>
@@ -807,7 +897,7 @@
     }
 
     .facet-section h3 {
-        margin: 16px 0 8px 0;
+        margin: 16px 0;
         font-size: 13px;
         font-weight: 600;
         color: #e0e0e0;
@@ -822,35 +912,53 @@
     .facets-list {
         display: flex;
         flex-direction: column;
+        gap: 10px;
     }
 
     .facet-group {
-        padding: 8px 12px;
-    }
-
-    .facet-item {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .facet-item:last-child {
         margin-bottom: 0;
     }
 
+    .facet-header {
+        padding: 0px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        text-align: left;
+        border: none;
+        outline: none;
+        width: 100%;
+    }
+
+    .facet-header:hover .audit-details-toggle {
+        background: #ffffff12;
+        border-color: #ffffff1f;
+        color: #e0e0e0;
+    }
+
+    .facet-expansion {
+        padding: 0px 12px 12px;
+    }
+
     .facet-bullet {
         font-weight: bold;
         margin-top: 2px;
         color: #ffffff73;
-        flex: 0 0 1%;
+        min-width: 9px;
     }
 
     .facet-text {
         font-size: 15px;
         line-height: 1.4;
         color: #e0e0e0;
-        flex: 0 0 calc(99% - 8px);
+        width: 100%;
 
         :global(strong) {
             color: #79ecb7;
@@ -878,21 +986,18 @@
     }
 
     /* Audit-specific styles */
+    .facet-item.audit-pass .facet-header, .facet-item.audit-fail .facet-header {
+        padding: 12px 12px;
+    }
+
     .facet-item.audit-pass {
         background: #10b98110;
         border-left: 1px solid #10b981;
-        padding: 12px 0px 12px 12px;
     }
 
     .facet-item.audit-fail {
         background: #ffdfdf10;
         border-left: 1px solid #ff7171;
-        padding: 12px 0px 12px 12px;
-    }
-
-    .requirement-audit-details {
-        flex: 1;
-        max-width: calc(100% - 12px);
     }
 
     .audit-details-toggle {
@@ -907,12 +1012,7 @@
         align-items: center;
         gap: 4px;
         transition: all 0.2s;
-    }
-
-    .audit-details-toggle:hover {
-        background: #ffffff12;
-        border-color: #ffffff1f;
-        color: #e0e0e0;
+        white-space: nowrap;
     }
 
     .audit-details-toggle svg {
@@ -933,6 +1033,7 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
     .entity-tables {
@@ -1018,5 +1119,13 @@
         background: #26a059;
         transition: width 0.3s ease;
         border-radius: 4px;
+    }
+
+    .truncated-text {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
     }
 </style>

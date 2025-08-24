@@ -13,6 +13,7 @@
     import { Toaster } from "$lib/components/ui/sonner";
     import { error, success } from "$src/modules/utils/toast.svelte.js";
     import {onMount} from "svelte";
+    import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
 
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
     let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
@@ -22,6 +23,42 @@
     async function addNewSpecification() {
         if (!IDS.Module.activeDocument) return;
         await IDS.createSpecification(IDS.Module.activeDocument);
+
+        // Switch to "info" tab
+        IDS.setDocumentState(IDS.Module.activeDocument, { activeTab: 'info' });
+    }
+    
+    async function importSpecification(sourceDocId, specIndex) {
+        if (!IDS.Module.activeDocument || !IDS.Module.documents[sourceDocId]) return;
+        
+        try {
+            const sourceDoc = IDS.Module.documents[sourceDocId];
+            const sourceSpec = sourceDoc.specifications?.specification?.[specIndex];
+            
+            if (!sourceSpec) {
+                error('Specification not found');
+                return;
+            }
+            
+            // Create a deep copy of the specification
+            const specCopy = JSON.parse(JSON.stringify(sourceSpec));
+            
+            // Add the copied specification to the current document
+            IDS.Module.documents[IDS.Module.activeDocument].specifications.specification.push(specCopy);
+            
+            // Switch to the newly created specification and info tab
+            const currentDoc = IDS.Module.documents[IDS.Module.activeDocument];
+            const newSpecIndex = (currentDoc.specifications?.specification?.length || 1) - 1;
+            IDS.setDocumentState(IDS.Module.activeDocument, { 
+                activeSpecification: newSpecIndex,
+                activeTab: 'info'
+            });
+            
+            success(`Specification "${sourceSpec['@name'] || 'Unnamed'}" imported successfully`);
+        } catch (err) {
+            console.error('Error importing specification:', err);
+            error(`Failed to import specification: ${err.message}`);
+        }
     }
     
     function selectSpecification(index) {
@@ -67,12 +104,62 @@
                 <div class="ids-sidebar">
                     <div class="sidebar-header">
                         <h3>Specifications</h3>
-                        <button class="cta-btn" onclick={addNewSpecification}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
+                        <DropdownMenu.Root>
+                            <DropdownMenu.Trigger class="cta-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                New
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Content class="w-56">
+                                <DropdownMenu.Item onclick={addNewSpecification}>
+                                    <svg class="mr-2 h-4 w-4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                        <polyline points="14,2 14,8 20,8"></polyline>
+                                    </svg>
+                                    Create Specification
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Sub>
+                                    <DropdownMenu.SubTrigger>
+                                        <svg class="mr-2 h-4 w-4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14,2 14,8 20,8"></polyline>
+                                            <path d="m9 15 2 2 4-4"></path>
+                                        </svg>
+                                        Import from IDS
+                                    </DropdownMenu.SubTrigger>
+                                    <DropdownMenu.SubContent class="w-64 max-h-64 overflow-y-auto">
+                                        {#each Object.entries(IDS.Module.documents) as [docId, doc]}
+                                            {#if docId !== IDS.Module.activeDocument && doc.specifications?.specification?.length > 0}
+                                                <DropdownMenu.Label class="font-medium text-xs text-muted-foreground px-2 py-1 truncate">
+                                                    {doc.info?.title || 'Untitled Document'}
+                                                </DropdownMenu.Label>
+                                                {#each doc.specifications.specification as spec, specIndex}
+                                                    <DropdownMenu.Item onclick={() => importSpecification(docId, specIndex)}>
+                                                        <svg class="mr-2 h-3 w-3" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                                            <polyline points="14,2 14,8 20,8"></polyline>
+                                                        </svg>
+                                                        <span class="truncate text-sm">
+                                                            {spec['@name'] || `Specification ${specIndex + 1}`}
+                                                        </span>
+                                                    </DropdownMenu.Item>
+                                                {/each}
+                                                {#if Object.entries(IDS.Module.documents).filter(([id, d]) => id !== IDS.Module.activeDocument && d.specifications?.specification?.length > 0).indexOf([docId, doc]) < Object.entries(IDS.Module.documents).filter(([id, d]) => id !== IDS.Module.activeDocument && d.specifications?.specification?.length > 0).length - 1}
+                                                    <DropdownMenu.Separator />
+                                                {/if}
+                                            {/if}
+                                        {/each}
+                                        {#if Object.entries(IDS.Module.documents).filter(([docId, doc]) => docId !== IDS.Module.activeDocument && doc.specifications?.specification?.length > 0).length === 0}
+                                            <DropdownMenu.Item disabled>
+                                                <span class="text-sm">No specifications available to import</span>
+                                            </DropdownMenu.Item>
+                                        {/if}
+                                    </DropdownMenu.SubContent>
+                                </DropdownMenu.Sub>
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Root>
                     </div>
                     <div class="specifications-list scrollbar">
                         <div class="spec-item" class:active={documentState?.activeSpecification === null} onclick={() => { if (IDS.Module.activeDocument) IDS.setDocumentState(IDS.Module.activeDocument, { activeSpecification: null }); }}>
