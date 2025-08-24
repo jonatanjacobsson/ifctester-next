@@ -8,6 +8,7 @@
     let auditReport = $derived(documentState?.auditReport ? getAuditReportById(documentState.auditReport) : null);
     let expandedSpecs = $state(new Set());
     let expandedRequirements = $state(new Set());
+    let allExpanded = $state(false);
 
     // Open Editor mode and jump to a specific specification
     function editSpecification(index) {
@@ -28,6 +29,21 @@
             expandedSpecs.add(index);
         }
         expandedSpecs = new Set(expandedSpecs);
+    }
+
+    function toggleAllSpecifications() {
+        if (!activeDocument?.specifications?.specification) return;
+        
+        if (allExpanded) {
+            // Collapse all
+            expandedSpecs = new Set();
+            allExpanded = false;
+        } else {
+            // Expand all
+            const allIndices = Array.from({ length: activeDocument.specifications.specification.length }, (_, i) => i);
+            expandedSpecs = new Set(allIndices);
+            allExpanded = true;
+        }
     }
 
     function getSpecificationStatus(specIndex, auditData) {
@@ -179,6 +195,20 @@
 
     <div class="specifications-viewer">
         {#if activeDocument?.specifications?.specification && activeDocument.specifications.specification.length > 0}
+            <div class="specifications-header">
+                <button class="expand-all-btn" onclick={toggleAllSpecifications} aria-label={allExpanded ? 'Collapse all specifications' : 'Expand all specifications'}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        {#if allExpanded}
+                            <path d="M8 14l4-4 4 4"/>
+                            <path d="M8 10l4-4 4 4"/>
+                        {:else}
+                            <path d="M8 10l4 4 4-4"/>
+                            <path d="M8 14l4 4 4-4"/>
+                        {/if}
+                    </svg>
+                    {allExpanded ? 'Collapse All' : 'Expand All'}
+                </button>
+            </div>
             {#each activeDocument.specifications.specification as spec, index}
                 <div class="specification-card {auditReport ? 'with-audit' : ''} {auditReport && getSpecificationStatus(index, auditReport.data) !== null ? (getSpecificationStatus(index, auditReport.data) === 'skipped' ? 'spec-skipped' : (getSpecificationStatus(index, auditReport.data) ? 'spec-pass' : 'spec-fail')) : ''}">
                     <div class="spec-card-header" onclick={() => toggleSpecification(index)}>
@@ -187,9 +217,23 @@
                                 <h2>{spec["@name"] || `Specification ${index + 1}`}</h2>
                                 {#if auditReport && getSpecificationStatus(index, auditReport.data) !== null}
                                     {@const status = getSpecificationStatus(index, auditReport.data)}
-                                    <span class="spec-status {status === 'skipped' ? 'skipped' : (status ? 'pass' : 'fail')}">
-                                        {status === 'skipped' ? 'SKIPPED' : (status ? 'PASS' : 'FAIL')}
-                                    </span>
+                                    {@const stats = getSpecificationStats(index, auditReport.data)}
+                                    <div class="spec-status-container">
+                                        <span class="spec-status {status === 'skipped' ? 'skipped' : (status ? 'pass' : 'fail')}">
+                                            {status === 'skipped' ? 'SKIPPED' : (status ? 'PASS' : 'FAIL')}
+                                        </span>
+                                        {#if status !== 'skipped' && stats}
+                                            {@const percentage = stats.checksTotal > 0 ? Math.round((stats.checksPassed / stats.checksTotal) * 100) : 0}
+                                            <div class="circular-progress" style="--progress: {percentage}%">
+                                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                                    <path class="circle-bg" d="M18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"/>
+                                                    {#if percentage > 0}
+                                                        <path class="circle" stroke-dasharray="{percentage}, 100" d="M18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"/>
+                                                    {/if}
+                                                </svg>
+                                            </div>
+                                        {/if}
+                                    </div>
                                 {/if}
                             </div>
                             {#if "@description" in spec}
@@ -204,8 +248,8 @@
                                 {@const status = getSpecificationStatus(index, auditReport.data)}
                                 {#if stats && status !== 'skipped'}
                                     <div class="spec-stats">
-                                        <span class="stat-item">Requirements: {stats.requirementsPassed}/{stats.requirements}</span>
                                         <span class="stat-item">Checks: {stats.checksPassed}/{stats.checksTotal}</span>
+                                        <span class="stat-item">Requirements: {stats.requirementsPassed}/{stats.requirements}</span>
                                     </div>
                                 {/if}
                             {/if}
@@ -510,6 +554,38 @@
         gap: 24px;
     }
 
+    .specifications-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 0 4px;
+    }
+
+    .expand-all-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 12px;
+        background: #ffffff12;
+        color: #ffffff;
+        border: 1px solid #ffffff24;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .expand-all-btn:hover {
+        background: #ffffff1a;
+        border-color: #ffffff40;
+    }
+
+    .expand-all-btn svg {
+        flex-shrink: 0;
+    }
+
     .specification-card {
         background: #ffffff05;
         border: 1px solid #5555556e;
@@ -595,6 +671,48 @@
     .spec-status.skipped {
         background: #8b8d8f22;
         color: #8b8d8f;
+    }
+
+    .spec-status-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .circular-progress {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .circular-chart {
+        display: block;
+        margin: auto;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .circle-bg {
+        fill: none;
+        stroke: #ffffff20;
+        stroke-width: 4.8;
+    }
+
+    .circle {
+        fill: none;
+        stroke-width: 4.8;
+        stroke: #26a059;
+        stroke-linecap: round;
+        animation: progress 1s ease-in-out forwards;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+    }
+
+    @keyframes progress {
+        0% {
+            stroke-dasharray: 0 100;
+        }
     }
 
     .spec-stats {

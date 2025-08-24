@@ -106,16 +106,16 @@
             <p class="text-sm text-muted-foreground leading-relaxed">
                 IfcTester (Next). Designed and developed by 
                 <a href="https://github.com/theseyan" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Sayan J. Das</a> 
-                as their Google Summer of Code 2025 project under the mentorship of 
+                as their <a href="https://summerofcode.withgoogle.com/programs/2025/projects/888lO1F8" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Google Summer of Code 2025 project</a> under the mentorship of 
                 <a href="https://github.com/moult" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Dion Moult</a>.
             </p>
             
             <div class="space-y-2">
                 <p class="text-sm">
-                    <span class="font-medium">GSoC Project:</span>
+                    <span class="font-medium">Source Code:</span>
                     <br>
-                    <a href="https://summerofcode.withgoogle.com/programs/2025/projects/888lO1F8" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
-                        summerofcode.withgoogle.com/programs/2025/projects/888lO1F8
+                    <a href="https://github.com/theseyan/ifctester-next" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
+                        github.com/theseyan/ifctester-next
                     </a>
                 </p>
                 
@@ -124,6 +124,14 @@
                     <br>
                     <a href="https://matrix.to/#/@sayanjdas:matrix.org" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
                         @sayanjdas:matrix.org
+                    </a>
+                </p>
+
+                <p class="text-sm">
+                    <span class="font-medium">License:</span>
+                    <br>
+                    <a href="https://github.com/IfcOpenShell/IfcOpenShell/blob/master/COPYING.LESSER" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline text-xs">
+                        LGPL License
                     </a>
                 </p>
             </div>
