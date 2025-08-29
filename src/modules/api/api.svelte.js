@@ -212,7 +212,7 @@ export function createAuditReport(modelId, document, auditData, htmlReport = nul
         htmlReport: htmlReport
     };
     
-    IFCModels.audits.push(auditReport);
+    IFCModels.audits.unshift(auditReport);
     return auditReport;
 }
 
