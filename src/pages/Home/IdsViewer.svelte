@@ -3,6 +3,7 @@
     import { getAuditReportById, downloadAuditReport } from "$src/modules/api/api.svelte.js";
     import { error, success } from "$src/modules/utils/toast.svelte.js";
     import * as Tooltip from "$src/lib/components/ui/tooltip";
+    import * as CopyableText from "$src/lib/components/ui/copyable-text";
 
     let activeDocument = $derived(IDS.Module.activeDocument ? IDS.Module.documents[IDS.Module.activeDocument] : null);
     let documentState = $derived(IDS.Module.activeDocument ? IDS.Module.states[IDS.Module.activeDocument] : null);
@@ -346,48 +347,12 @@
                                                                                     <tbody>
                                                                                         {#each reqAuditData.passed_entities.slice(0, 10) as entity}
                                                                                             <tr>
-                                                                                                <td>{entity.class}</td>
-                                                                                                <td>{entity.predefined_type || '-'}</td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.name || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.name || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root delayDuration={0}>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.description || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.description || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.global_id || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.global_id || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.tag || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.tag || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
+                                                                                                <td><CopyableText.Root value={entity.class} /></td>
+                                                                                                <td><CopyableText.Root value={entity.predefined_type || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.name || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.description || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.global_id || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.tag || '-'} /></td>
                                                                                             </tr>
                                                                                         {/each}
                                                                                         {#if reqAuditData.passed_entities.length > 10}
@@ -422,58 +387,13 @@
                                                                                     <tbody>
                                                                                         {#each reqAuditData.failed_entities.slice(0, 10) as entity}
                                                                                             <tr>
-                                                                                                <td>{entity.class}</td>
-                                                                                                <td>{entity.predefined_type || '-'}</td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.name || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.name || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root delayDuration={0}>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.description || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.description || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root delayDuration={0}>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.reason || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.reason || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.global_id || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.global_id || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <Tooltip.Root>
-                                                                                                        <Tooltip.Trigger>
-                                                                                                            <div class="truncated-text">{entity.tag || '-'}</div>
-                                                                                                        </Tooltip.Trigger>
-                                                                                                        <Tooltip.Content>
-                                                                                                            <p>{entity.tag || '-'}</p>
-                                                                                                        </Tooltip.Content>
-                                                                                                    </Tooltip.Root>
-                                                                                                </td>
+                                                                                                <td><CopyableText.Root value={entity.class} /></td>
+                                                                                                <td><CopyableText.Root value={entity.predefined_type || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.name || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.description || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.reason || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.global_id || '-'} /></td>
+                                                                                                <td><CopyableText.Root value={entity.tag || '-'} /></td>
                                                                                             </tr>
                                                                                         {/each}
                                                                                         {#if reqAuditData.failed_entities.length > 10}
